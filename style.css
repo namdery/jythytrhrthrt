@@ -1,0 +1,117 @@
+:root {
+    --bg-color: #05080a;
+    --card-bg: rgba(13, 19, 26, 0.8);
+    --accent-blue: #0066ff;
+    --text-white: #ffffff;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+    background-color: var(--bg-color);
+    color: var(--text-white);
+    overflow: hidden;
+}
+
+.background-animation {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: radial-gradient(circle at 50% 10%, #1a2a3a 0%, #05080a 70%);
+    z-index: -1;
+}
+
+.main-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    padding: 20px;
+}
+
+.card {
+    background: var(--card-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px;
+    padding: 30px;
+    text-align: center;
+    width: 100%;
+    max-width: 320px;
+    position: relative;
+    animation: fadeIn 0.8s ease-out;
+}
+
+h1 { color: #8efaff; margin: 0; font-size: 28px; text-shadow: 0 0 10px rgba(142,250,255,0.5); }
+
+.user-info { margin: 15px 0; }
+#user-avatar { width: 60px; height: 60px; border-radius: 50%; border: 2px solid var(--accent-blue); }
+
+.counter-badge {
+    background: rgba(0, 255, 180, 0.1);
+    color: #00ffb4;
+    font-size: 11px;
+    padding: 8px 12px;
+    border-radius: 20px;
+    margin: 15px 0;
+    display: inline-flex;
+    align-items: center;
+}
+
+.upload-btn {
+    background: linear-gradient(90deg, #0052d4, #4364f7, #6fb1fc);
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    border-radius: 12px;
+    font-weight: bold;
+    width: 100%;
+    margin-top: 10px;
+    box-shadow: 0 4px 15px rgba(0, 102, 255, 0.4);
+    transition: transform 0.2s;
+}
+
+.upload-btn:active { transform: scale(0.98); }
+
+.bottom-nav {
+    position: absolute;
+    bottom: 30px;
+    display: flex;
+    gap: 15px;
+}
+
+.bottom-nav button {
+    background: rgba(255,255,255,0.05);
+    border: none;
+    color: #aaa;
+    padding: 10px 20px;
+    border-radius: 10px;
+}
+
+/* Модальное окно */
+.modal-overlay {
+    position: fixed;
+    bottom: -100%;
+    left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.8);
+    transition: bottom 0.4s ease;
+    display: flex;
+    align-items: flex-end;
+}
+
+.modal-overlay.active { bottom: 0; }
+
+.modal-content {
+    background: #12181f;
+    width: 100%;
+    padding: 30px;
+    border-radius: 30px 30px 0 0;
+    max-height: 70vh;
+}
+
+.hidden { display: none; }
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
