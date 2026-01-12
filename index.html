@@ -6,115 +6,103 @@
     <title>Nicegram Checker</title>
     <link rel="stylesheet" href="style.css">
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="container">
-        <!-- Аватар с анимацией -->
+        <!-- Анимированный аватар -->
         <div class="avatar-container">
-            <div class="avatar" id="animatedAvatar">
-                <img src="https://i.imgur.com/xQF5dZT.png" alt="Аватар" id="avatarImg">
+            <div class="avatar" id="avatar">
+                <i class="fas fa-user-circle"></i>
             </div>
         </div>
         
         <!-- Приветствие -->
-        <div class="greeting">
-            Привет, <span id="userName" style="color: #667eea; font-weight: 600;">Пользователь</span>!
-            <div class="greeting-text">
-                Загрузите файл экспорта для проверки
-            </div>
-        </div>
-        
-        <!-- Статус проверки -->
-        <div class="check-status">
-            <div class="status-text">
-                Последняя успешная проверка: сегодня в 18:04
-            </div>
+        <div class="greeting" id="greeting">
+            Привет, <span id="userName">Пользователь</span>!
         </div>
         
         <!-- Кнопка отправки файла -->
-        <button class="btn-send" id="sendFileBtn">
-            📎 Отправить файл
+        <button class="btn send-btn" id="sendFileBtn">
+            <i class="fas fa-paper-plane"></i> Отправить файл
         </button>
         
-        <!-- Блок загрузки файла -->
-        <div class="file-upload" id="fileUpload" style="display: none;">
-            <div class="upload-icon">📁</div>
-            <div class="upload-text">Загрузить файл</div>
-            <div class="upload-subtext">Несмотря на данные заверения</div>
-        </div>
-        
-        <!-- Слайдер для проверки на человека -->
-        <div class="captcha-container" id="captchaContainer" style="display: none;">
-            <div class="captcha-text">Передвиньте ползунок вправо для подтверждения</div>
-            <div class="slider-container">
-                <div class="slider-track">
-                    <div class="slider-thumb" id="sliderThumb">
-                        <span>→</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Сообщение об успешной отправке -->
-        <div class="success-message" id="successMessage" style="display: none;"></div>
-        
-        <!-- Нижние кнопки -->
-        <div class="bottom-buttons">
-            <button class="btn-bottom" id="instructionBtn">
-                📖 Инструкция
+        <!-- Информационные кнопки -->
+        <div class="info-buttons">
+            <button class="info-btn" id="instructionBtn">
+                <i class="fas fa-book"></i> Инструкция
             </button>
-            <button class="btn-bottom" id="faqBtn">
-                ❓ FAQ
+            <button class="info-btn" id="faqBtn">
+                <i class="fas fa-question-circle"></i> FAQ
             </button>
         </div>
         
-        <!-- Модальное окно Инструкция -->
+        <!-- Модальные окна -->
         <div class="modal" id="instructionModal">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Инструкция</h2>
-                    <span class="close-btn" id="closeInstruction">&times;</span>
+                    <span class="close-btn">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <ol class="instruction-list">
-                        <li>Скачайте приложение Искорёжки с официального сайта...</li>
-                        <li>Откройте Искорёжки и войдите в свой аккаунт.</li>
-                        <li>Зайдите в настройки и выберите пункт «Искорёжки».</li>
-                        <li>Экспортируйте файл...</li>
-                        <li>Откройте главное меню бета и нажмите на кнопку "Проверка на реферат".</li>
-                        <li>Отправьте файл боту.</li>
-                        <li>Ожидайте результатов проверки.</li>
-                    </ol>
+                    <!-- Содержимое инструкции -->
+                    <div class="instruction-content">
+                        <h3>1. Скачайте приложение Искоряги с официального сайта...</h3>
+                        <h3>2. Откройте Искоряги и войдите в свой аккаунт.</h3>
+                        <h3>3. Зайдите в настройки и выберите пункт «Искоряги».</h3>
+                        <h3>4. Экспортируйте файл...</h3>
+                        <h3>5. Откройте главное меню бета и нажмите на кнопку "Проверка на реферат".</h3>
+                        <h3>6. Отправьте файл боту.</h3>
+                        <h3>7. Ожидайте результатов проверки.</h3>
+                        <br>
+                        <h3><strong>Понятно</strong></h3>
+                    </div>
                 </div>
-                <button class="btn-understand">Понятно</button>
             </div>
         </div>
         
-        <!-- Модальное окно FAQ -->
         <div class="modal" id="faqModal">
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Частые вопросы</h2>
-                    <span class="close-btn" id="closeFaq">&times;</span>
+                    <span class="close-btn">&times;</span>
                 </div>
                 <div class="modal-body">
-                    <div class="faq-section">
-                        <h3>Что такое рефлексия?</h3>
-                        <p>Это возврат средств за подарок...</p>
-                    </div>
-                    <div class="divider"></div>
-                    <div class="faq-section">
-                        <h3>Сколько времени занимает проверка?</h3>
-                        <p>Обычно 3-5 минут, бывают задержки.</p>
-                    </div>
-                    <div class="divider"></div>
-                    <div class="faq-section">
-                        <h3>Мои файлы в безопасности?</h3>
-                        <p>Да – мы не храним ваши файлы, их проверяет наш бот, после чего удаляет.</p>
+                    <!-- Содержимое FAQ -->
+                    <div class="faq-content">
+                        <div class="faq-item">
+                            <h3><strong>Что такое рефлексия?</strong></h3>
+                            <p>Это возврат средств за подарок...</p>
+                        </div>
+                        <hr>
+                        <div class="faq-item">
+                            <h3>Сколько времени занимает проверка?</h3>
+                            <p>Обычно 3-5 минут, бывают задержки.</p>
+                        </div>
+                        <hr>
+                        <div class="faq-item">
+                            <h3>Мои файлы в безопасности?</h3>
+                            <p>Да – мы не храним ваши файлы, их проверяет наш бот, после чего удаляет.</p>
+                        </div>
+                        <hr>
+                        <button class="close-faq-btn">Закрыть</button>
                     </div>
                 </div>
-                <button class="btn-close">Закрыть</button>
             </div>
+        </div>
+        
+        <!-- Снежинки -->
+        <div class="snowflakes" aria-hidden="true">
+            <div class="snowflake">❄</div>
+            <div class="snowflake">❄</div>
+            <div class="snowflake">❄</div>
+            <div class="snowflake">❄</div>
+            <div class="snowflake">❄</div>
+            <div class="snowflake">❄</div>
+            <div class="snowflake">❄</div>
+            <div class="snowflake">❄</div>
+            <div class="snowflake">❄</div>
+            <div class="snowflake">❄</div>
         </div>
     </div>
     
