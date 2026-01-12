@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html><!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
@@ -42,7 +42,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Инструкция</h2>
-                    <span class="close-btn">&times;</span>
+                    <button class="close-btn close-modal-btn">&times;</button>
                 </div>
                 <div class="modal-body">
                     <!-- Содержимое инструкции -->
@@ -55,7 +55,9 @@
                         <h3>6. Отправьте файл боту.</h3>
                         <h3>7. Ожидайте результатов проверки.</h3>
                         <br>
-                        <h3><strong>Понятно</strong></h3>
+                        <button class="btn understand-btn" id="understandBtn">
+                            <strong>Понятно</strong>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -65,7 +67,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h2>Частые вопросы</h2>
-                    <span class="close-btn">&times;</span>
+                    <button class="close-btn close-modal-btn">&times;</button>
                 </div>
                 <div class="modal-body">
                     <!-- Содержимое FAQ -->
@@ -85,7 +87,9 @@
                             <p>Да – мы не храним ваши файлы, их проверяет наш бот, после чего удаляет.</p>
                         </div>
                         <hr>
-                        <button class="close-faq-btn">Закрыть</button>
+                        <button class="btn close-faq-btn">
+                            <i class="fas fa-times"></i> Закрыть
+                        </button>
                     </div>
                 </div>
             </div>
