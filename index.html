@@ -3,35 +3,372 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Nicegram App</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <title>NiceGram App</title>
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            height: 100%; 
+            width: 100%; 
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Фоновые изображения */
+        .background-layer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 30% 20%, rgba(0, 80, 0, 0.15) 0%, transparent 70%),
+                        radial-gradient(circle at 70% 80%, rgba(0, 120, 0, 0.1) 0%, transparent 70%);
+        }
+
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.05;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #00ff00 2px, transparent 3px),
+                radial-gradient(circle at 75% 75%, #00ff00 2px, transparent 3px);
+            background-size: 100px 100px;
+        }
+
+        .screen {
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+        }
+
+        /* Карточка */
+        .card {
+            background: rgba(0, 20, 0, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            padding: 30px 25px;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(0, 255, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        h2 {
+            color: #00ff88;
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: 700;
+        }
+
+        p {
+            color: #aaffaa;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+
+        .hidden { 
+            display: none !important; 
+        }
+
+        /* Вращающийся элемент */
+        .rotate-container {
+            margin: 30px auto;
+            position: relative;
+        }
+
+        .rotate-box {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
+            position: relative;
+            border-radius: 50%;
+            background: rgba(0, 40, 0, 0.3);
+            border: 2px dashed rgba(0, 255, 0, 0.4);
+            box-shadow: 
+                inset 0 0 30px rgba(0, 255, 0, 0.1),
+                0 0 30px rgba(0, 255, 0, 0.1);
+        }
+
+        #degree {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 20px;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            z-index: 2;
+        }
+
+        .circle {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #00cc44, #008822);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            margin-top: -35px;
+            margin-left: -35px;
+            box-shadow: 
+                0 0 25px rgba(0, 255, 0, 0.5),
+                inset 0 2px 0 rgba(255, 255, 255, 0.2);
+            cursor: grab;
+            transition: all 0.2s ease;
+            color: white;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            z-index: 3;
+        }
+
+        .circle:active { 
+            cursor: grabbing; 
+            box-shadow: 
+                0 0 35px rgba(0, 255, 0, 0.8),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
+        }
+
+        /* Кнопки */
+        .btn {
+            width: 100%;
+            padding: 16px 20px;
+            border: none;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #00aa44, #008822);
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::after {
+            left: 100%;
+        }
+
+        .btn.upload { 
+            background: linear-gradient(135deg, #0066cc, #004499);
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.2);
+        }
+
+        .btn.upload:hover {
+            box-shadow: 0 6px 20px rgba(0, 102, 255, 0.3);
+        }
+
+        /* Статус сообщения */
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 14px;
+            display: none;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .status.active { 
+            display: block; 
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success { 
+            background: rgba(0, 255, 0, 0.15); 
+            color: #88ff88;
+            border-color: rgba(0, 255, 0, 0.3);
+        }
+
+        .error { 
+            background: rgba(255, 0, 0, 0.15); 
+            color: #ff8888;
+            border-color: rgba(255, 0, 0, 0.3);
+        }
+
+        /* Индикатор загрузки */
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00ff00;
+            animation: spin 1s ease-in-out infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Детали устройства */
+        .device-info {
+            margin-top: 15px;
+            font-size: 12px;
+            color: #88ff88;
+            opacity: 0.7;
+            padding: 10px;
+            background: rgba(0, 40, 0, 0.3);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 0, 0.1);
+        }
+
+        /* Мобильная оптимизация */
+        @media (max-width: 480px) {
+            .card {
+                padding: 25px 20px;
+                max-width: 90%;
+            }
+            
+            .rotate-box {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .circle {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+                margin-top: -30px;
+                margin-left: -30px;
+            }
+            
+            h2 {
+                font-size: 22px;
+            }
+            
+            .btn {
+                padding: 14px 18px;
+            }
+        }
+
+        /* Анимация появления */
+        .fade-in {
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Иконка файла */
+        .file-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        }
+    </style>
 </head>
 <body>
-    <div class="screen" id="captcha-screen">
+    <!-- Фоновые слои -->
+    <div class="background-layer"></div>
+    <div class="bg-pattern"></div>
+
+    <!-- Экран Капчи -->
+    <div class="screen fade-in" id="captcha-screen">
         <div class="card">
-            <div class="icon">🛡️</div>
-            <h2>Проверка</h2>
-            <p>Поверните стрелку вправо (85°-95°)</p>
+            <h2>🔒 Проверка безопасности</h2>
+            <p>Поверните стрелку вправо в диапазон 80°-99° для продолжения</p>
+            
             <div class="rotate-container">
-                <div id="degree">0°</div>
-                <div id="circle" class="circle">↑</div>
+                <div class="rotate-box">
+                    <div id="degree">0°</div>
+                    <div id="circle" class="circle">↑</div>
+                </div>
             </div>
-            <button class="btn" id="verify-btn">Подтвердить</button>
+            
+            <button class="btn" id="verify-btn">✅ Подтвердить</button>
         </div>
     </div>
 
+    <!-- Главный экран -->
     <div class="screen hidden" id="main-screen">
         <div class="card">
-            <div class="icon">🎁</div>
-            <h2 id="welcome">Добро пожаловать</h2>
-            <p>Выберите файл для отправки администратору</p>
-            <button class="btn upload" id="select-btn">📤 Отправить файл</button>
+            <span class="file-icon">📄</span>
+            <h2 id="welcome-user">Добро пожаловать</h2>
+            <p>Загрузите ваш текстовый файл (.txt)</p>
+            
+            <button class="btn upload" id="select-file-btn">
+                📤 Выбрать TXT файл
+            </button>
             <input type="file" id="file-input" accept=".txt" hidden>
+            
             <div id="status-msg" class="status"></div>
+            
+            <div class="device-info" id="device-info">
+                Устройство: Определяется...
+            </div>
         </div>
     </div>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="script.js"></script>
 </body>
 </html>
-
