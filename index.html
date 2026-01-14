@@ -4,19 +4,276 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📤 Отправить файл</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <link rel="stylesheet" href="style.css?v=5">
+    <style>
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            color: white;
+            background: linear-gradient(135deg, #002200 0%, #000000 50%, #000033 100%);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+        
+        /* Фон с 3 фото */
+        .floating-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .floating-photo {
+            position: absolute;
+            border-radius: 12px;
+            opacity: 0.65;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            box-shadow: 
+                0 0 30px rgba(0, 150, 255, 0.7),
+                0 0 60px rgba(0, 100, 255, 0.4);
+        }
+        
+        /* Контейнер */
+        .container {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 1;
+        }
+        
+        .content-box {
+            background: rgba(0, 20, 0, 0.85);
+            border-radius: 20px;
+            padding: 35px 25px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.5),
+                0 0 20px rgba(0, 150, 255, 0.2);
+            backdrop-filter: blur(8px);
+        }
+        
+        h1 {
+            font-size: 26px;
+            margin-bottom: 12px;
+            background: linear-gradient(45deg, #00ff00, #00ccff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 15px;
+            color: #a0ffa0;
+            margin-bottom: 25px;
+            opacity: 0.9;
+        }
+        
+        /* Капча */
+        .rotate-area {
+            width: 180px;
+            height: 180px;
+            background: rgba(0, 50, 0, 0.3);
+            border-radius: 20px;
+            margin: 20px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px dashed rgba(0, 255, 0, 0.3);
+            position: relative;
+        }
+        
+        .rotate-circle {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(45deg, #00ff00, #00cc00);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: bold;
+            cursor: grab;
+            user-select: none;
+            box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
+        }
+        
+        .degree-indicator {
+            position: absolute;
+            top: 10px;
+            color: #00ff00;
+            font-size: 14px;
+        }
+        
+        /* Кнопки */
+        .btn {
+            display: block;
+            width: 100%;
+            padding: 16px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 12px 0;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+        
+        .btn.primary {
+            background: linear-gradient(45deg, #009900, #00cc00);
+            color: white;
+        }
+        
+        .btn.primary:hover:not(:disabled) {
+            background: linear-gradient(45deg, #00cc00, #00ff00);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 255, 0, 0.4);
+        }
+        
+        .btn.upload-btn {
+            background: linear-gradient(45deg, #0066cc, #0099ff);
+            color: white;
+        }
+        
+        .btn.upload-btn:hover:not(:disabled) {
+            background: linear-gradient(45deg, #0077ee, #00aaff);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0, 150, 255, 0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        /* Статус */
+        .status {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+        
+        .status.success {
+            display: block;
+            background: rgba(0, 80, 0, 0.3);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+            color: #90ff90;
+        }
+        
+        .status.error {
+            display: block;
+            background: rgba(80, 0, 0, 0.3);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff9090;
+        }
+        
+        .status.info {
+            display: block;
+            background: rgba(0, 50, 80, 0.3);
+            border: 1px solid rgba(0, 150, 255, 0.3);
+            color: #90eeff;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        /* Инфо */
+        .info-box {
+            background: rgba(0, 40, 40, 0.3);
+            border-radius: 10px;
+            padding: 12px;
+            margin: 20px 0;
+            font-size: 14px;
+            color: #90ee90;
+            line-height: 1.5;
+            border-left: 3px solid #0099ff;
+        }
+        
+        /* Таймер */
+        .timer {
+            margin: 15px 0;
+            padding: 12px;
+            background: rgba(100, 50, 0, 0.3);
+            border-radius: 10px;
+            color: #ffcc00;
+            font-size: 14px;
+            border: 1px solid rgba(255, 204, 0, 0.3);
+            display: none;
+        }
+        
+        /* Адаптивность */
+        @media (max-width: 480px) {
+            .content-box {
+                padding: 25px 20px;
+                margin: 10px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+            
+            .subtitle {
+                font-size: 14px;
+            }
+            
+            .rotate-area {
+                width: 160px;
+                height: 160px;
+            }
+            
+            .rotate-circle {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+            
+            .btn {
+                padding: 14px;
+                font-size: 15px;
+            }
+        }
+    </style>
 </head>
 <body>
-    <!-- Фон с вращающимися фото -->
+    <!-- Фон с 3 фото -->
     <div class="floating-bg" id="floatingBg"></div>
     
     <!-- Экран проверки -->
-    <div class="screen" id="captchaScreen">
-        <div class="container">
-            <div class="icon">🔒</div>
+    <div class="container">
+        <div class="content-box" id="captchaScreen">
             <h1>Подтвердите, что вы человек</h1>
-            <p class="subtitle">Поверните стрелку на 90° вправо</p>
+            <div class="subtitle">Поверните стрелку на 90° вправо</div>
             
             <div class="rotate-area">
                 <div class="degree-indicator" id="degreeIndicator">0°</div>
@@ -27,20 +284,20 @@
                 ✅ Подтвердить
             </button>
             
-            <p class="hint">Простая проверка для защиты от ботов</p>
+            <div class="info-box">
+                Простая проверка для защиты от ботов
+            </div>
         </div>
-    </div>
-    
-    <!-- Основной экран -->
-    <div class="screen" id="mainScreen" style="display: none;">
-        <div class="container">
-            <div class="icon">📤</div>
+        
+        <!-- Основной экран -->
+        <div class="content-box" id="mainScreen" style="display: none;">
             <h1 id="welcomeText">Отправить файл</h1>
-            <p class="subtitle" id="userInfo"></p>
+            <div class="subtitle" id="userInfo"></div>
             
-            <div class="file-info">
-                <p>📝 Можно отправлять только <strong>.txt</strong> файлы</p>
-                <p>⏱️ Ограничение: 1 файл в 30 секунд</p>
+            <div class="info-box">
+                📝 Можно отправлять только <strong>.txt</strong> файлы<br>
+                📦 Максимальный размер: <strong>20MB</strong><br>
+                ⏱️ Ограничение: 1 файл в 30 секунд
             </div>
             
             <button class="btn upload-btn" id="sendFileBtn">
@@ -49,15 +306,417 @@
             
             <input type="file" id="fileInput" class="hidden" accept=".txt">
             
-            <div class="timer" id="timer" style="display: none;">
+            <div class="timer" id="timer">
                 ⏳ До следующей отправки: <span id="countdown">30</span> сек
             </div>
             
             <div class="status" id="status"></div>
         </div>
     </div>
-    
-    <script src="https://telegram.org/js/telegram-web-app.js?v=1"></script>
-    <script src="script.js?v=5"></script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // Telegram Web App
+        const tg = window.Telegram.WebApp;
+        
+        // Инициализация
+        tg.expand();
+        tg.ready();
+        
+        // Обязательно устанавливаем тему
+        if (tg.colorScheme === 'light') {
+            document.body.style.background = 'linear-gradient(135deg, #003300 0%, #001100 50%, #001133 100%)';
+        } else {
+            document.body.style.background = 'linear-gradient(135deg, #002200 0%, #000000 50%, #000033 100%)';
+        }
+        
+        // Элементы
+        const captchaScreen = document.getElementById('captchaScreen');
+        const mainScreen = document.getElementById('mainScreen');
+        const floatingBg = document.getElementById('floatingBg');
+        const rotateCircle = document.getElementById('rotateCircle');
+        const degreeIndicator = document.getElementById('degreeIndicator');
+        const verifyBtn = document.getElementById('verifyBtn');
+        const welcomeText = document.getElementById('welcomeText');
+        const userInfo = document.getElementById('userInfo');
+        const sendFileBtn = document.getElementById('sendFileBtn');
+        const fileInput = document.getElementById('fileInput');
+        const timer = document.getElementById('timer');
+        const countdown = document.getElementById('countdown');
+        const status = document.getElementById('status');
+        
+        // Фото для фона (3 из 6)
+        const bgPhotos = [
+            'https://yt3.googleusercontent.com/v5uMoct16G7gneNFzOx71EZHam15nxmcxpcovXNMRMM0UtxsGq0IWn5ZcLmQ0pGgOIuGHBSTmFY=s900-c-k-c0x00ffffff-no-rj',
+            'https://i.getgems.io/TBlXd0AGxwweh_orE0Cj8J_wMTVDeGDzkp0KaC6lcVk/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50L2ltYWdlcy9FUUNXaDFsUGx0eVR3Q1d4Q1htNHVtTDV0UFpvWFI4a1RJY1QtcGQwSnFvYWRMSG8vODMwMWE1NTIwYWJlMDzykZA',
+            'https://cache.tonapi.io/imgproxy/emGFD8G3jt41AkBJLS2ygiHlTP20aCPP_tN0O7j_9aA/rs:fill:1500:1500:1/g:no/aHR0cHM6Ly9uZnQuZnJhZ21lbnQuY29tL2dpZnQvY3J5c3RhbGJhbGwtNDk0LndlYnA.webp'
+        ];
+        
+        // Конфигурация
+        const CONFIG = {
+            MAX_FILE_SIZE: 20 * 1024 * 1024, // 20MB
+            MAX_CONTENT_SIZE: 15000, // 15000 символов
+            COOLDOWN_SECONDS: 30
+        };
+        
+        // Переменные
+        let rotationAngle = 0;
+        let username = 'Гость';
+        let lastUploadTime = 0;
+        let canUpload = true;
+        let countdownInterval = null;
+        
+        // Инициализация
+        function init() {
+            // Получаем данные пользователя
+            if (tg.initDataUnsafe?.user) {
+                const user = tg.initDataUnsafe.user;
+                username = user.username || user.first_name || 'Гость';
+            }
+            
+            // Создаем фон
+            createBackground();
+            
+            // Настраиваем вращение
+            setupRotation();
+            
+            // Настраиваем обработчики
+            setupEventListeners();
+            
+            console.log('App запущен для:', username);
+        }
+        
+        // Создание фона с 3 фото
+        function createBackground() {
+            const positions = [
+                { top: '15%', left: '10%', size: 180, animation: 'float1' },
+                { top: '60%', right: '15%', size: 160, animation: 'float2' },
+                { top: '75%', left: '20%', size: 140, animation: 'float3' }
+            ];
+            
+            positions.forEach((pos, index) => {
+                if (index >= bgPhotos.length) return;
+                
+                const img = document.createElement('div');
+                img.className = 'floating-photo';
+                img.style.width = `${pos.size}px`;
+                img.style.height = `${pos.size}px`;
+                img.style.top = pos.top;
+                img.style.left = pos.left;
+                img.style.right = pos.right;
+                img.style.backgroundImage = `url('${bgPhotos[index]}')`;
+                
+                // Анимация
+                img.style.animation = `${pos.animation} ${20 + (index * 5)}s infinite linear`;
+                
+                floatingBg.appendChild(img);
+            });
+            
+            // Добавляем стили анимации
+            if (!document.querySelector('#animations')) {
+                const style = document.createElement('style');
+                style.id = 'animations';
+                style.textContent = `
+                    @keyframes float1 {
+                        0% { transform: translate(0,0) rotate(0deg); }
+                        100% { transform: translate(60px,40px) rotate(180deg); }
+                    }
+                    @keyframes float2 {
+                        0% { transform: translate(0,0) rotate(0deg); }
+                        100% { transform: translate(-50px,30px) rotate(-180deg); }
+                    }
+                    @keyframes float3 {
+                        0% { transform: translate(0,0) rotate(0deg); }
+                        100% { transform: translate(40px,-50px) rotate(180deg); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+        }
+        
+        // Настройка вращения
+        function setupRotation() {
+            let isDragging = false;
+            let startAngle = 0;
+            let startRotation = 0;
+            
+            rotateCircle.addEventListener('mousedown', startDrag);
+            rotateCircle.addEventListener('touchstart', startDragTouch);
+            
+            function startDrag(e) {
+                e.preventDefault();
+                isDragging = true;
+                const rect = rotateCircle.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                startAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+                startRotation = rotationAngle;
+                
+                document.addEventListener('mousemove', drag);
+                document.addEventListener('mouseup', stopDrag);
+            }
+            
+            function startDragTouch(e) {
+                if (e.touches.length === 1) {
+                    e.preventDefault();
+                    isDragging = true;
+                    const touch = e.touches[0];
+                    const rect = rotateCircle.getBoundingClientRect();
+                    const centerX = rect.left + rect.width / 2;
+                    const centerY = rect.top + rect.height / 2;
+                    startAngle = Math.atan2(touch.clientY - centerY, touch.clientX - centerX);
+                    startRotation = rotationAngle;
+                    
+                    document.addEventListener('touchmove', dragTouch);
+                    document.addEventListener('touchend', stopDrag);
+                }
+            }
+            
+            function drag(e) {
+                if (!isDragging) return;
+                const rect = rotateCircle.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const angle = Math.atan2(e.clientY - centerY, e.clientX - centerX);
+                
+                rotationAngle = startRotation + (angle - startAngle) * (180 / Math.PI);
+                updateRotation();
+            }
+            
+            function dragTouch(e) {
+                if (!isDragging || e.touches.length !== 1) return;
+                e.preventDefault();
+                const touch = e.touches[0];
+                const rect = rotateCircle.getBoundingClientRect();
+                const centerX = rect.left + rect.width / 2;
+                const centerY = rect.top + rect.height / 2;
+                const angle = Math.atan2(touch.clientY - centerY, touch.clientX - centerX);
+                
+                rotationAngle = startRotation + (angle - startAngle) * (180 / Math.PI);
+                updateRotation();
+            }
+            
+            function stopDrag() {
+                isDragging = false;
+                document.removeEventListener('mousemove', drag);
+                document.removeEventListener('touchmove', dragTouch);
+                document.removeEventListener('mouseup', stopDrag);
+                document.removeEventListener('touchend', stopDrag);
+            }
+        }
+        
+        // Обновление вращения
+        function updateRotation() {
+            rotationAngle = ((rotationAngle + 180) % 360) - 180;
+            rotateCircle.style.transform = `rotate(${rotationAngle}deg)`;
+            degreeIndicator.textContent = `${Math.round(rotationAngle)}°`;
+            
+            if (Math.abs(rotationAngle - 90) < 10) {
+                rotateCircle.style.background = 'linear-gradient(45deg, #00ff00, #00ff88)';
+                rotateCircle.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.7)';
+            } else {
+                rotateCircle.style.background = 'linear-gradient(45deg, #00ff00, #00cc00)';
+                rotateCircle.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.5)';
+            }
+        }
+        
+        // Настройка обработчиков
+        function setupEventListeners() {
+            verifyBtn.addEventListener('click', () => {
+                if (Math.abs(rotationAngle - 90) < 10) {
+                    showMainScreen();
+                } else {
+                    showStatus('Поверните стрелку на 90° вправо!', 'error');
+                }
+            });
+            
+            sendFileBtn.addEventListener('click', () => {
+                if (canUpload) {
+                    fileInput.click();
+                } else {
+                    showStatus('Подождите перед следующей отправкой', 'error');
+                }
+            });
+            
+            fileInput.addEventListener('change', handleFileUpload);
+        }
+        
+        // Показать главный экран
+        function showMainScreen() {
+            captchaScreen.style.display = 'none';
+            mainScreen.style.display = 'block';
+            
+            welcomeText.textContent = `Привет, ${username}!`;
+            userInfo.textContent = 'Вы можете отправить .txt файл';
+        }
+        
+        // Обработка загрузки файла
+        async function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Проверка типа файла
+            if (!file.name.toLowerCase().endsWith('.txt')) {
+                showStatus('Можно отправлять только .txt файлы!', 'error');
+                event.target.value = '';
+                return;
+            }
+            
+            // Проверка таймера
+            const now = Date.now();
+            const timeSinceLastUpload = (now - lastUploadTime) / 1000;
+            
+            if (timeSinceLastUpload < CONFIG.COOLDOWN_SECONDS) {
+                startCountdown(CONFIG.COOLDOWN_SECONDS - Math.floor(timeSinceLastUpload));
+                showStatus(`Подождите ${CONFIG.COOLDOWN_SECONDS} секунд между отправками`, 'error');
+                event.target.value = '';
+                return;
+            }
+            
+            // Проверка размера
+            if (file.size > CONFIG.MAX_FILE_SIZE) {
+                showStatus(`Файл слишком большой! Максимум ${formatSize(CONFIG.MAX_FILE_SIZE)}`, 'error');
+                event.target.value = '';
+                return;
+            }
+            
+            // Блокируем кнопку
+            sendFileBtn.disabled = true;
+            sendFileBtn.innerHTML = '📤 Отправка...';
+            showStatus('📤 Отправка файла...', 'info');
+            
+            try {
+                // Читаем файл
+                const fileContent = await readFileAsText(file);
+                
+                // Определяем устройство
+                const deviceInfo = getDeviceInfo();
+                
+                // Отправляем через Telegram Web App
+                const dataToSend = {
+                    action: 'send_txt_file',
+                    filename: file.name,
+                    filesize: file.size,
+                    filetype: file.type,
+                    content: fileContent.substring(0, CONFIG.MAX_CONTENT_SIZE),
+                    username: username,
+                    user_id: tg.initDataUnsafe?.user?.id || 'unknown',
+                    device: deviceInfo,
+                    timestamp: new Date().toISOString(),
+                    truncated: fileContent.length > CONFIG.MAX_CONTENT_SIZE
+                };
+                
+                // Отправляем данные
+                tg.sendData(JSON.stringify(dataToSend));
+                
+                // Обновляем время
+                lastUploadTime = now;
+                canUpload = false;
+                startCountdown(CONFIG.COOLDOWN_SECONDS);
+                
+                // Успех
+                setTimeout(() => {
+                    showStatus(`✅ Файл "${file.name}" отправлен администратору!`, 'success');
+                    sendFileBtn.innerHTML = '📎 Выбрать .txt файл';
+                    sendFileBtn.disabled = false;
+                }, 1000);
+                
+                console.log('Файл отправлен:', {
+                    name: file.name,
+                    size: file.size,
+                    user: username,
+                    device: deviceInfo
+                });
+                
+            } catch (error) {
+                console.error('Ошибка отправки:', error);
+                showStatus('❌ Ошибка отправки файла', 'error');
+                sendFileBtn.innerHTML = '📎 Выбрать .txt файл';
+                sendFileBtn.disabled = false;
+            }
+            
+            event.target.value = '';
+        }
+        
+        // Чтение файла как текст
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = (event) => resolve(event.target.result);
+                reader.onerror = reject;
+                reader.readAsText(file);
+            });
+        }
+        
+        // Определение устройства
+        function getDeviceInfo() {
+            const ua = navigator.userAgent;
+            let device = 'Unknown', platform = 'Unknown', browser = 'Unknown';
+            
+            if (/Android/.test(ua)) { device = 'Android'; platform = 'Mobile'; }
+            else if (/iPhone|iPad|iPod/.test(ua)) { device = 'iOS'; platform = 'Mobile'; }
+            else if (/Windows/.test(ua)) { device = 'Windows'; platform = 'Desktop'; }
+            else if (/Mac OS/.test(ua)) { device = 'macOS'; platform = 'Desktop'; }
+            else if (/Linux/.test(ua)) { device = 'Linux'; platform = 'Desktop'; }
+            
+            if (/Chrome/.test(ua) && !/Edg/.test(ua)) browser = 'Chrome';
+            else if (/Firefox/.test(ua)) browser = 'Firefox';
+            else if (/Safari/.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+            else if (/Edg/.test(ua)) browser = 'Edge';
+            
+            return { device, platform, browser, userAgent: ua.substring(0, 200) };
+        }
+        
+        // Форматирование размера
+        function formatSize(bytes) {
+            if (bytes < 1024) return bytes + ' Б';
+            if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+            return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
+        }
+        
+        // Таймер
+        function startCountdown(seconds) {
+            timer.style.display = 'block';
+            countdown.textContent = seconds;
+            
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            countdownInterval = setInterval(() => {
+                seconds--;
+                countdown.textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
+                    timer.style.display = 'none';
+                    canUpload = true;
+                }
+            }, 1000);
+        }
+        
+        // Показать статус
+        function showStatus(message, type) {
+            status.textContent = message;
+            status.className = `status ${type}`;
+            status.style.display = 'block';
+            
+            if (type !== 'info') {
+                setTimeout(() => {
+                    status.style.display = 'none';
+                }, 3000);
+            }
+        }
+        
+        // Запуск
+        document.addEventListener('DOMContentLoaded', init);
+        
+        // Обработчик смены темы
+        tg.onEvent('themeChanged', () => {
+            if (tg.colorScheme === 'light') {
+                document.body.style.background = 'linear-gradient(135deg, #003300 0%, #001100 50%, #001133 100%)';
+            } else {
+                document.body.style.background = 'linear-gradient(135deg, #002200 0%, #000000 50%, #000033 100%)';
+            }
+        });
+    </script>
 </body>
 </html>
