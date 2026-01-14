@@ -9,11 +9,11 @@ body {
     color: white;
     min-height: 100vh;
     background: linear-gradient(135deg, #001a00 0%, #000000 50%, #000033 100%);
-    overflow: hidden;
+    overflow-x: hidden;
     position: relative;
 }
 
-/* Фон с вращающимися фото */
+/* Фон с вращающимися фото (уменьшенные, не соприкасаются) */
 .floating-bg {
     position: fixed;
     top: 0;
@@ -27,24 +27,28 @@ body {
 
 .floating-photo {
     position: absolute;
-    border-radius: 15px;
+    border-radius: 8px;
     opacity: 0.65;
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
     box-shadow: 
-        0 0 30px rgba(0, 150, 255, 0.7),
-        0 0 60px rgba(0, 100, 255, 0.4);
-    animation: float 30s linear infinite;
+        0 0 15px rgba(0, 150, 255, 0.5),
+        0 0 30px rgba(0, 100, 255, 0.3);
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    /* Уменьшенный размер */
+    width: 70px !important;
+    height: 70px !important;
 }
 
-@keyframes float {
-    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
-    25% { transform: translate(50px, 30px) rotate(90deg) scale(1.05); }
-    50% { transform: translate(0, 60px) rotate(180deg) scale(1); }
-    75% { transform: translate(-50px, 30px) rotate(270deg) scale(0.95); }
-    100% { transform: translate(0, 0) rotate(360deg) scale(1); }
-}
+/* Анимации для разных позиций */
+@keyframes float1 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(60px, 40px) rotate(180deg); } }
+@keyframes float2 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(-70px, 50px) rotate(-180deg); } }
+@keyframes float3 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(50px, -60px) rotate(180deg); } }
+@keyframes float4 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(-50px, -70px) rotate(-180deg); } }
+@keyframes float5 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(80px, 30px) rotate(180deg); } }
+@keyframes float6 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(-80px, -40px) rotate(-180deg); } }
 
 /* Основные экраны */
 .screen {
@@ -58,68 +62,97 @@ body {
 .container {
     background: rgba(0, 20, 0, 0.85);
     border-radius: 20px;
-    padding: 40px 30px;
-    max-width: 400px;
+    padding: 35px 25px;
+    max-width: 420px;
     width: 100%;
     text-align: center;
-    border: 1px solid rgba(0, 255, 0, 0.2);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
+    border: 1px solid rgba(0, 255, 255, 0.2);
+    box-shadow: 
+        0 15px 35px rgba(0, 0, 0, 0.4),
+        0 0 20px rgba(0, 150, 255, 0.1);
+    backdrop-filter: blur(8px);
 }
 
 .icon {
-    font-size: 60px;
-    margin-bottom: 20px;
-    animation: pulse 2s infinite;
+    font-size: 50px;
+    margin-bottom: 15px;
+    animation: pulse 3s infinite;
 }
 
 @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
+    0%, 100% { 
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% { 
+        transform: scale(1.05);
+        opacity: 0.8;
+    }
 }
 
 h1 {
-    font-size: 28px;
-    margin-bottom: 15px;
-    background: linear-gradient(45deg, #00ff00, #00ccff);
+    font-size: 26px;
+    margin-bottom: 12px;
+    background: linear-gradient(45deg, #00ffff, #0099ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    text-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
 }
 
 .subtitle {
-    font-size: 16px;
+    font-size: 15px;
     color: #a0ffa0;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
     opacity: 0.9;
+    line-height: 1.4;
+}
+
+.file-info {
+    background: rgba(0, 40, 40, 0.3);
+    border-radius: 10px;
+    padding: 12px;
+    margin: 20px 0;
+    font-size: 14px;
+    color: #90ee90;
+    line-height: 1.5;
+    border-left: 3px solid #0099ff;
+}
+
+.file-info p {
+    margin: 8px 0;
+}
+
+.file-info strong {
+    color: #00ffff;
 }
 
 /* Область вращения */
 .rotate-area {
-    width: 200px;
-    height: 200px;
+    width: 180px;
+    height: 180px;
     background: rgba(0, 50, 0, 0.3);
     border-radius: 20px;
     margin: 20px auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 3px dashed rgba(0, 255, 0, 0.3);
+    border: 2px dashed rgba(0, 255, 0, 0.3);
     position: relative;
 }
 
 .rotate-circle {
-    width: 80px;
-    height: 80px;
+    width: 70px;
+    height: 70px;
     background: linear-gradient(45deg, #00ff00, #00cc00);
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
     cursor: grab;
     user-select: none;
-    box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+    box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
     transition: transform 0.2s;
 }
 
@@ -131,7 +164,7 @@ h1 {
     position: absolute;
     top: 10px;
     color: #00ff00;
-    font-size: 14px;
+    font-size: 13px;
 }
 
 /* Кнопки */
@@ -139,13 +172,14 @@ h1 {
     display: block;
     width: 100%;
     padding: 16px;
-    font-size: 18px;
-    font-weight: bold;
+    font-size: 16px;
+    font-weight: 600;
     border: none;
     border-radius: 12px;
     cursor: pointer;
-    margin: 15px 0;
+    margin: 12px 0;
     transition: all 0.3s ease;
+    font-family: inherit;
 }
 
 .btn.primary {
@@ -153,85 +187,128 @@ h1 {
     color: white;
 }
 
-.btn.primary:hover {
+.btn.primary:hover:not(:disabled) {
     background: linear-gradient(45deg, #00cc00, #00ff00);
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 255, 0, 0.3);
+    box-shadow: 0 8px 20px rgba(0, 255, 0, 0.4);
 }
 
-.btn {
+.btn.primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.upload-btn {
     background: linear-gradient(45deg, #0066cc, #0099ff);
     color: white;
+    margin-top: 20px;
 }
 
-.btn:hover {
+.upload-btn:hover:not(:disabled) {
     background: linear-gradient(45deg, #0077ee, #00aaff);
     transform: translateY(-2px);
-    box-shadow: 0 10px 25px rgba(0, 100, 255, 0.3);
+    box-shadow: 0 8px 20px rgba(0, 150, 255, 0.4);
 }
 
-/* Подсказки */
-.hint {
-    margin-top: 20px;
+.upload-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Таймер */
+.timer {
+    margin: 15px 0;
+    padding: 12px;
+    background: rgba(100, 50, 0, 0.3);
+    border-radius: 10px;
+    color: #ffcc00;
     font-size: 14px;
-    color: #88cc88;
-    opacity: 0.7;
+    border: 1px solid rgba(255, 204, 0, 0.3);
+}
+
+.timer span {
+    font-weight: bold;
+    font-size: 16px;
+    color: #ff9900;
 }
 
 /* Статус */
 .status {
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 10px;
+    margin-top: 15px;
+    padding: 12px;
+    border-radius: 8px;
     display: none;
+    font-size: 14px;
+    text-align: center;
 }
 
 .status.success {
     display: block;
-    background: rgba(0, 100, 0, 0.3);
-    border-left: 4px solid #00ff00;
+    background: rgba(0, 80, 0, 0.3);
+    border: 1px solid rgba(0, 255, 0, 0.3);
     color: #90ff90;
 }
 
 .status.error {
     display: block;
-    background: rgba(100, 0, 0, 0.3);
-    border-left: 4px solid #ff0000;
+    background: rgba(80, 0, 0, 0.3);
+    border: 1px solid rgba(255, 0, 0, 0.3);
     color: #ff9090;
 }
 
 .status.info {
     display: block;
-    background: rgba(0, 50, 100, 0.3);
-    border-left: 4px solid #0099ff;
-    color: #90ee90;
+    background: rgba(0, 50, 80, 0.3);
+    border: 1px solid rgba(0, 150, 255, 0.3);
+    color: #90eeff;
 }
 
 .hidden {
     display: none;
 }
 
+/* Подсказки */
+.hint {
+    margin-top: 15px;
+    font-size: 13px;
+    color: #88cc88;
+    opacity: 0.7;
+}
+
 /* Адаптивность */
 @media (max-width: 480px) {
     .container {
-        padding: 30px 20px;
+        padding: 25px 20px;
+        margin: 10px;
     }
     
     h1 {
-        font-size: 24px;
+        font-size: 22px;
     }
     
-    .subtitle {
-        font-size: 14px;
+    .subtitle, .file-info {
+        font-size: 13px;
     }
     
     .rotate-area {
-        width: 180px;
-        height: 180px;
+        width: 160px;
+        height: 160px;
+    }
+    
+    .rotate-circle {
+        width: 60px;
+        height: 60px;
+        font-size: 20px;
     }
     
     .btn {
         padding: 14px;
-        font-size: 16px;
+        font-size: 15px;
+    }
+    
+    .floating-photo {
+        width: 50px !important;
+        height: 50px !important;
     }
 }
