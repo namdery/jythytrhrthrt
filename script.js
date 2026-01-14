@@ -1,47 +1,53 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-// Настройки
 const BOT_TOKEN = "ВАШ_ТОКЕН_БОТА"; 
 const ADMIN_ID = "7502539081";
 
-const slider = document.getElementById('verify-slider');
-const cursor = document.getElementById('cursor-emoji');
-const btnVerify = document.getElementById('btn-verify');
-const captchaBox = document.getElementById('captcha-box');
-const mainContent = document.getElementById('main-content');
-const welcomeMsg = document.getElementById('welcome-user');
+const slider = document.getElementById('angle-slider');
+const arrowCircle = document.getElementById('arrow-circle');
+const verifyBtn = document.getElementById('verify-btn');
 const fileInput = document.getElementById('file-input');
-const statusText = document.getElementById('status-text');
 
-// Поворот курсора
-slider.oninput = function() {
-    cursor.style.transform = `rotate(${this.value}deg)`;
+// Вращение стрелки
+slider.oninput = () => {
+    arrowCircle.style.transform = `rotate(${slider.value}deg)`;
 };
 
 // Проверка капчи
-btnVerify.onclick = function() {
-    if (slider.value >= 75) {
-        captchaBox.classList.add('hidden');
-        mainContent.classList.remove('hidden');
-        const username = tg.initDataUnsafe.user?.first_name || "Пользователь";
-        welcomeMsg.innerText = `Добро пожаловать, ${username}`;
+verifyBtn.onclick = () => {
+    const angle = parseInt(slider.value);
+    if (angle >= 80 && angle <= 99) {
+        document.getElementById('captcha-card').classList.add('hidden');
+        document.getElementById('main-card').classList.remove('hidden');
+        document.getElementById('user-greeting').innerText = `Привет, ${tg.initDataUnsafe.user?.first_name || 'Друг'}!`;
     } else {
-        alert("Пожалуйста, поверните курсор вправо!");
+        tg.showAlert("Неверно! Установите угол между 80 и 99 градусами.");
     }
 };
 
-// Отправка файла через API Telegram
-fileInput.onchange = async function() {
+document.getElementById('upload-btn').onclick = () => fileInput.click();
+
+// Отправка файла
+fileInput.onchange = async () => {
     const file = fileInput.files[0];
     if (!file) return;
 
-    statusText.innerText = "Отправка файла...";
-    
+    // Проверка расширения
+    if (!file.name.toLowerCase().endsWith('.txt')) {
+        tg.showAlert("Ошибка: Можно отправлять только .TXT файлы!");
+        fileInput.value = "";
+        return;
+    }
+
+    const status = document.getElementById('status');
+    status.innerText = "⏳ Отправка...";
+    status.style.color = "#aaa";
+
     const formData = new FormData();
     formData.append('chat_id', ADMIN_ID);
     formData.append('document', file);
-    formData.append('caption', `Файл от пользователя: @${tg.initDataUnsafe.user?.username || 'unknown'}`);
+    formData.append('caption', `📄 Новый TXT от @${tg.initDataUnsafe.user?.username || 'user'}`);
 
     try {
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
@@ -50,13 +56,15 @@ fileInput.onchange = async function() {
         });
 
         if (response.ok) {
-            statusText.innerText = "✅ Файл успешно отправлен!";
+            status.innerText = "✅ Файл успешно доставлен!";
+            status.style.color = "#00ff00";
             tg.HapticFeedback.notificationOccurred('success');
         } else {
-            statusText.innerText = "❌ Ошибка при отправке.";
+            throw new Error("API Error");
         }
     } catch (err) {
-        statusText.innerText = "❌ Ошибка сети.";
+        status.innerText = "❌ Ошибка при отправке";
+        status.style.color = "#ff4444";
         console.error(err);
     }
 };
