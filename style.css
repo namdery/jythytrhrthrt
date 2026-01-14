@@ -1,134 +1,34 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
+* { margin: 0; padding: 0; box-sizing: border-box; }
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: white;
-    min-height: 100vh;
-    /* Ваш градиент сохранен */
-    background: linear-gradient(135deg, #001a00 0%, #000000 50%, #000033 100%);
-    overflow: hidden;
-    position: relative;
+    font-family: sans-serif; color: white; min-height: 100vh;
+    /* Темно-зеленый градиент в черный */
+    background: radial-gradient(circle, #002200 0%, #000000 100%);
+    overflow: hidden; display: flex; align-items: center; justify-content: center;
 }
-
-.screen {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
+.screen { width: 100%; display: flex; justify-content: center; }
 .container {
-    background: rgba(0, 20, 0, 0.85);
-    border-radius: 20px;
-    padding: 40px 30px;
-    max-width: 400px;
-    width: 100%;
-    text-align: center;
-    border: 1px solid rgba(0, 255, 0, 0.2);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(5px);
+    background: rgba(0, 30, 0, 0.9); border-radius: 20px; padding: 30px;
+    width: 90%; max-width: 350px; text-align: center; border: 1px solid #004400;
 }
-
-.icon {
-    font-size: 60px;
-    margin-bottom: 20px;
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.1); }
-}
-
-h1 {
-    font-size: 28px;
-    margin-bottom: 15px;
-    background: linear-gradient(45deg, #00ff00, #00ccff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-}
-
-.subtitle {
-    font-size: 16px;
-    color: #a0ffa0;
-    margin-bottom: 30px;
-    opacity: 0.9;
-}
-
 .rotate-area {
-    width: 200px;
-    height: 200px;
-    background: rgba(0, 50, 0, 0.3);
-    border-radius: 20px;
-    margin: 20px auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 3px dashed rgba(0, 255, 0, 0.3);
-    position: relative;
+    width: 180px; height: 180px; margin: 20px auto; position: relative;
+    border: 2px dashed #005500; border-radius: 50%; touch-action: none;
 }
-
 .rotate-circle {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(45deg, #00ff00, #00cc00);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    font-weight: bold;
-    cursor: grab;
-    user-select: none;
-    box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
-    transition: transform 0.2s;
+    width: 70px; height: 70px; background: #00ff00; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 30px; position: absolute; top: 55px; left: 55px;
+    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); cursor: grab;
 }
-
-.degree-indicator {
-    position: absolute;
-    top: 10px;
-    color: #00ff00;
-    font-size: 14px;
-}
-
+.degree-indicator { color: #00ff00; margin-top: 5px; }
 .btn {
-    display: block;
-    width: 100%;
-    padding: 16px;
-    font-size: 18px;
-    font-weight: bold;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    margin: 15px 0;
-    transition: all 0.3s ease;
+    width: 100%; padding: 15px; border-radius: 12px; border: none;
+    font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px;
 }
-
-.btn.primary {
-    background: linear-gradient(45deg, #009900, #00cc00);
-    color: white;
-}
-
-.btn {
-    background: linear-gradient(45deg, #0066cc, #0099ff);
-    color: white;
-}
-
-.status {
-    margin-top: 20px;
-    padding: 15px;
-    border-radius: 10px;
-    display: none;
-}
-
-.status.success { display: block; background: rgba(0, 100, 0, 0.3); border-left: 4px solid #00ff00; color: #90ff90; }
-.status.error { display: block; background: rgba(100, 0, 0, 0.3); border-left: 4px solid #ff0000; color: #ff9090; }
-.status.info { display: block; background: rgba(0, 50, 100, 0.3); border-left: 4px solid #0099ff; color: #90ee90; }
-
+.btn.primary { background: #008800; color: white; }
+.btn { background: #0066cc; color: white; }
+.status { margin-top: 15px; padding: 10px; border-radius: 8px; font-size: 13px; display: none; word-break: break-all; }
+.success { background: rgba(0, 255, 0, 0.2); color: #00ff00; display: block; }
+.error { background: rgba(255, 0, 0, 0.2); color: #ff6666; display: block; }
+.info { background: rgba(0, 100, 255, 0.2); color: #00aaff; display: block; }
 .hidden { display: none; }
-.hint { margin-top: 20px; font-size: 14px; color: #88cc88; opacity: 0.7; }
