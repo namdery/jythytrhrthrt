@@ -8,47 +8,31 @@
     <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
-    <!-- Фон с вращающимися фото -->
     <div class="floating-bg" id="floatingBg"></div>
     
-    <!-- Экран проверки -->
     <div class="screen" id="captchaScreen">
         <div class="container">
             <div class="icon">🔒</div>
             <h1>Подтвердите, что вы человек</h1>
             <p class="subtitle">Поверните стрелку на 90° вправо</p>
-            
             <div class="rotate-area">
                 <div class="degree-indicator" id="degreeIndicator">0°</div>
                 <div class="rotate-circle" id="rotateCircle">↑</div>
             </div>
-            
-            <button class="btn primary" id="verifyBtn">
-                ✅ Подтвердить
-            </button>
-            
+            <button class="btn primary" id="verifyBtn">✅ Подтвердить</button>
             <p class="hint">Простая проверка для защиты от ботов</p>
         </div>
     </div>
     
-    <!-- Основной экран -->
     <div class="screen" id="mainScreen" style="display: none;">
         <div class="container">
             <div class="icon">🎉</div>
             <h1 id="welcomeText">Добро пожаловать!</h1>
             <p class="subtitle" id="userInfo"></p>
-            
-            <button class="btn" id="sendFileBtn">
-                📤 Отправить файл
-            </button>
-            
+            <button class="btn" id="sendFileBtn">📤 Отправить файл</button>
             <input type="file" id="fileInput" class="hidden" multiple>
-            
             <div class="status" id="status"></div>
-            
-            <p class="hint">
-                Файл будет переслан в Telegram
-            </p>
+            <p class="hint">Файл будет переслан администратору</p>
         </div>
     </div>
     
