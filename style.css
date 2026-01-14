@@ -1,34 +1,39 @@
-* { margin: 0; padding: 0; box-sizing: border-box; }
-body {
-    font-family: sans-serif; color: white; min-height: 100vh;
-    /* Темно-зеленый градиент в черный */
+body, html {
+    margin: 0; padding: 0; height: 100%; width: 100%;
+    font-family: -apple-system, sans-serif;
     background: radial-gradient(circle, #002200 0%, #000000 100%);
-    overflow: hidden; display: flex; align-items: center; justify-content: center;
+    color: white; overflow: hidden;
 }
-.screen { width: 100%; display: flex; justify-content: center; }
-.container {
-    background: rgba(0, 30, 0, 0.9); border-radius: 20px; padding: 30px;
-    width: 90%; max-width: 350px; text-align: center; border: 1px solid #004400;
+.screen {
+    height: 100vh; display: flex; align-items: center; justify-content: center;
 }
-.rotate-area {
-    width: 180px; height: 180px; margin: 20px auto; position: relative;
-    border: 2px dashed #005500; border-radius: 50%; touch-action: none;
+.card {
+    background: rgba(0, 0, 0, 0.85); border: 1px solid #004400;
+    padding: 30px; border-radius: 25px; width: 280px; text-align: center;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.5);
 }
-.rotate-circle {
-    width: 70px; height: 70px; background: #00ff00; border-radius: 50%;
+.icon { font-size: 50px; margin-bottom: 10px; }
+.rotate-container {
+    width: 150px; height: 150px; margin: 20px auto; position: relative;
+    border: 2px dashed #006600; border-radius: 50%; touch-action: none;
+}
+#degree { color: #00ff00; font-weight: bold; margin-bottom: 5px; }
+.circle {
+    width: 60px; height: 60px; background: #00aa00; border-radius: 50%;
     display: flex; align-items: center; justify-content: center;
-    font-size: 30px; position: absolute; top: 55px; left: 55px;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5); cursor: grab;
+    font-size: 25px; font-weight: bold; position: absolute;
+    top: 45px; left: 45px; cursor: grab; box-shadow: 0 0 20px #00ff00;
 }
-.degree-indicator { color: #00ff00; margin-top: 5px; }
 .btn {
-    width: 100%; padding: 15px; border-radius: 12px; border: none;
-    font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px;
+    width: 100%; padding: 15px; border: none; border-radius: 12px;
+    background: #008800; color: white; font-weight: bold; cursor: pointer;
 }
-.btn.primary { background: #008800; color: white; }
-.btn { background: #0066cc; color: white; }
-.status { margin-top: 15px; padding: 10px; border-radius: 8px; font-size: 13px; display: none; word-break: break-all; }
-.success { background: rgba(0, 255, 0, 0.2); color: #00ff00; display: block; }
-.error { background: rgba(255, 0, 0, 0.2); color: #ff6666; display: block; }
-.info { background: rgba(0, 100, 255, 0.2); color: #00aaff; display: block; }
+.btn.upload { background: #0066cc; }
 .hidden { display: none; }
+.status {
+    margin-top: 15px; font-size: 13px; padding: 10px; border-radius: 8px;
+    display: none; word-break: break-all;
+}
+.status.active { display: block; }
+.error { background: rgba(255,0,0,0.2); color: #ff6666; }
+.success { background: rgba(0,255,0,0.2); color: #66ff66; }
