@@ -14,6 +14,8 @@ const welcomeText = document.getElementById('welcomeText');
 const userInfo = document.getElementById('userInfo');
 const sendFileBtn = document.getElementById('sendFileBtn');
 const fileInput = document.getElementById('fileInput');
+const timer = document.getElementById('timer');
+const countdown = document.getElementById('countdown');
 const status = document.getElementById('status');
 
 // Ссылки на фото
@@ -29,18 +31,19 @@ const photoUrls = [
 // Переменные
 let rotationAngle = 0;
 let username = 'Гость';
+let lastUploadTime = 0;
+let canUpload = true;
+let countdownInterval = null;
 
 // Инициализация
 function init() {
     // Получаем данные пользователя
     if (tg.initDataUnsafe?.user) {
         const user = tg.initDataUnsafe.user;
-        username = user.username || 
-                  `${user.first_name || ''} ${user.last_name || ''}`.trim() || 
-                  'Гость';
+        username = user.username || user.first_name || 'Гость';
     }
     
-    // Создаем фон
+    // Создаем фон с правильными позициями
     createBackground();
     
     // Настраиваем вращение
@@ -49,32 +52,37 @@ function init() {
     // Настраиваем обработчики
     setupEventListeners();
     
-    console.log('Mini App запущен для пользователя:', username);
+    console.log('App запущен для:', username);
 }
 
-// Создание фона
+// Создание фона (уменьшенные фото, не соприкасаются)
 function createBackground() {
+    // Позиции для 6 фото (чтобы не перекрывались)
+    const positions = [
+        { top: '10%', left: '15%', animation: 'float1' },
+        { top: '20%', left: '75%', animation: 'float2' },
+        { top: '45%', left: '10%', animation: 'float3' },
+        { top: '55%', left: '80%', animation: 'float4' },
+        { top: '75%', left: '20%', animation: 'float5' },
+        { top: '85%', left: '70%', animation: 'float6' }
+    ];
+    
     photoUrls.forEach((url, index) => {
         const img = document.createElement('div');
         img.className = 'floating-photo';
         
-        // Размеры и позиции
-        const size = 120 + Math.random() * 80;
-        img.style.width = `${size}px`;
-        img.style.height = `${size}px`;
-        img.style.top = `${10 + Math.random() * 80}%`;
-        img.style.left = `${10 + Math.random() * 80}%`;
+        const pos = positions[index] || positions[0];
+        img.style.top = pos.top;
+        img.style.left = pos.left;
         img.style.backgroundImage = `url('${url}')`;
-        
-        // Скорость 0.6x
-        const duration = 30 / 0.6;
-        img.style.animationDuration = `${duration + (index * 5)}s`;
+        img.style.animationName = pos.animation;
+        img.style.animationDuration = `${40 + (index * 5)}s`;
         
         floatingBg.appendChild(img);
     });
 }
 
-// Настройка вращения стрелки
+// Настройка вращения
 function setupRotation() {
     let isDragging = false;
     let startAngle = 0;
@@ -145,30 +153,23 @@ function setupRotation() {
     }
 }
 
-// Обновление отображения вращения
+// Обновление вращения
 function updateRotation() {
-    // Ограничиваем угол от -180 до 180 градусов
     rotationAngle = ((rotationAngle + 180) % 360) - 180;
-    
-    // Применяем вращение
     rotateCircle.style.transform = `rotate(${rotationAngle}deg)`;
-    
-    // Обновляем индикатор
     degreeIndicator.textContent = `${Math.round(rotationAngle)}°`;
     
-    // Подсвечиваем если близко к 90 градусам
     if (Math.abs(rotationAngle - 90) < 10) {
         rotateCircle.style.background = 'linear-gradient(45deg, #00ff00, #00ff88)';
-        rotateCircle.style.boxShadow = '0 0 40px rgba(0, 255, 0, 0.7)';
+        rotateCircle.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.7)';
     } else {
         rotateCircle.style.background = 'linear-gradient(45deg, #00ff00, #00cc00)';
-        rotateCircle.style.boxShadow = '0 0 30px rgba(0, 255, 0, 0.5)';
+        rotateCircle.style.boxShadow = '0 0 20px rgba(0, 255, 0, 0.5)';
     }
 }
 
 // Настройка обработчиков
 function setupEventListeners() {
-    // Проверка вращения
     verifyBtn.addEventListener('click', () => {
         if (Math.abs(rotationAngle - 90) < 10) {
             showMainScreen();
@@ -177,9 +178,12 @@ function setupEventListeners() {
         }
     });
     
-    // Отправка файла
     sendFileBtn.addEventListener('click', () => {
-        fileInput.click();
+        if (canUpload) {
+            fileInput.click();
+        } else {
+            showStatus('Подождите перед следующей отправкой', 'error');
+        }
     });
     
     fileInput.addEventListener('change', handleFileUpload);
@@ -190,66 +194,148 @@ function showMainScreen() {
     captchaScreen.style.display = 'none';
     mainScreen.style.display = 'flex';
     
-    welcomeText.textContent = `Добро пожаловать, ${username}!`;
-    userInfo.textContent = 'Теперь вы можете отправить файл';
+    welcomeText.textContent = `Привет, ${username}!`;
+    userInfo.textContent = 'Вы можете отправить .txt файл';
+    
+    mainScreen.style.opacity = '0';
+    setTimeout(() => {
+        mainScreen.style.transition = 'opacity 0.5s';
+        mainScreen.style.opacity = '1';
+    }, 100);
 }
 
 // Обработка загрузки файла
 async function handleFileUpload(event) {
-    const files = Array.from(event.target.files);
-    if (!files.length) return;
+    const file = event.target.files[0];
+    if (!file) return;
     
-    // Ограничения
-    const maxSize = 20 * 1024 * 1024; // 20MB
-    const oversizedFiles = files.filter(file => file.size > maxSize);
-    
-    if (oversizedFiles.length > 0) {
-        showStatus('Некоторые файлы больше 20MB', 'error');
+    // Проверка типа файла (только .txt)
+    if (!file.name.toLowerCase().endsWith('.txt')) {
+        showStatus('Можно отправлять только .txt файлы!', 'error');
+        event.target.value = '';
         return;
     }
     
-    showStatus(`📤 Отправка ${files.length} файла(ов)...`, 'info');
+    // Проверка таймера
+    const now = Date.now();
+    const timeSinceLastUpload = (now - lastUploadTime) / 1000;
     
-    // Отправка файлов через Telegram Web App
+    if (timeSinceLastUpload < 30) {
+        startCountdown(30 - Math.floor(timeSinceLastUpload));
+        showStatus('Подождите 30 секунд между отправками', 'error');
+        event.target.value = '';
+        return;
+    }
+    
+    // Проверка размера (макс. 5MB для .txt)
+    const maxSize = 5 * 1024 * 1024;
+    if (file.size > maxSize) {
+        showStatus('Файл слишком большой! Максимум 5MB', 'error');
+        event.target.value = '';
+        return;
+    }
+    
+    showStatus('📤 Отправка файла...', 'info');
+    
+    // Определение устройства
+    const deviceInfo = getDeviceInfo();
+    
+    // Отправка через Telegram Web App
     try {
-        // Отправляем данные о файлах
-        const fileData = files.map(file => ({
-            name: file.name,
-            size: file.size,
-            type: file.type
-        }));
-        
-        // Отправляем через Telegram Web App API
         tg.sendData(JSON.stringify({
-            action: 'send_files',
-            files: fileData,
+            action: 'upload_txt_file',
+            filename: file.name,
+            filesize: file.size,
             username: username,
-            target: '@rymora' // Отправляем @rymora
+            device: deviceInfo,
+            timestamp: new Date().toISOString()
         }));
         
-        // Показываем успех
+        // Обновляем время последней отправки
+        lastUploadTime = now;
+        canUpload = false;
+        sendFileBtn.disabled = true;
+        startCountdown(30);
+        
         setTimeout(() => {
-            showStatus(
-                `✅ ${files.length} файл(ов) успешно отправлено!`,
-                'success'
-            );
-            
-            console.log('Файлы отправлены @rymora:', {
-                count: files.length,
-                files: fileData,
-                from: username,
-                target: '@rymora'
-            });
-            
+            showStatus('✅ Файл отправлен на проверку!', 'success');
         }, 1500);
         
+        console.log('Файл отправлен:', {
+            name: file.name,
+            size: file.size,
+            user: username,
+            device: deviceInfo,
+            timestamp: new Date().toISOString()
+        });
+        
     } catch (error) {
-        showStatus('❌ Ошибка отправки файлов', 'error');
+        showStatus('❌ Ошибка отправки файла', 'error');
         console.error('Ошибка отправки:', error);
     }
     
-    // Сброс input
     event.target.value = '';
+}
+
+// Определение устройства
+function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    let device = 'Неизвестное устройство';
+    let platform = 'Неизвестно';
+    
+    // Определяем устройство
+    if (/Android/.test(ua)) {
+        device = 'Android';
+        platform = 'Мобильное';
+    } else if (/iPhone|iPad|iPod/.test(ua)) {
+        device = 'iOS';
+        platform = 'Мобильное';
+    } else if (/Windows/.test(ua)) {
+        device = 'Windows';
+        platform = 'Десктоп';
+    } else if (/Mac OS/.test(ua)) {
+        device = 'macOS';
+        platform = 'Десктоп';
+    } else if (/Linux/.test(ua)) {
+        device = 'Linux';
+        platform = 'Десктоп';
+    }
+    
+    // Определяем браузер
+    let browser = 'Неизвестный браузер';
+    if (/Chrome/.test(ua) && !/Edg/.test(ua)) browser = 'Chrome';
+    else if (/Firefox/.test(ua)) browser = 'Firefox';
+    else if (/Safari/.test(ua) && !/Chrome/.test(ua)) browser = 'Safari';
+    else if (/Edg/.test(ua)) browser = 'Edge';
+    
+    return {
+        device: device,
+        platform: platform,
+        browser: browser,
+        userAgent: ua.substring(0, 100) + '...'
+    };
+}
+
+// Запуск таймера обратного отсчета
+function startCountdown(seconds) {
+    timer.style.display = 'block';
+    countdown.textContent = seconds;
+    
+    if (countdownInterval) {
+        clearInterval(countdownInterval);
+    }
+    
+    countdownInterval = setInterval(() => {
+        seconds--;
+        countdown.textContent = seconds;
+        
+        if (seconds <= 0) {
+            clearInterval(countdownInterval);
+            timer.style.display = 'none';
+            canUpload = true;
+            sendFileBtn.disabled = false;
+        }
+    }, 1000);
 }
 
 // Показать статус
@@ -258,7 +344,6 @@ function showStatus(message, type) {
     status.className = `status ${type}`;
     status.style.display = 'block';
     
-    // Автоскрытие
     if (type !== 'info') {
         setTimeout(() => {
             status.style.display = 'none';
