@@ -8,8 +8,9 @@ body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     color: white;
     min-height: 100vh;
-    background: linear-gradient(135deg, #002200 0%, #000000 50%, #000044 100%);
-    overflow-x: hidden;
+    background: linear-gradient(135deg, #001a00 0%, #000000 50%, #000033 100%);
+    overflow: hidden;
+    position: relative;
 }
 
 /* Фон с вращающимися фото */
@@ -21,23 +22,28 @@ body {
     height: 100%;
     z-index: -1;
     pointer-events: none;
+    overflow: hidden;
 }
 
 .floating-photo {
     position: absolute;
-    border-radius: 12px;
+    border-radius: 15px;
     opacity: 0.65;
     background-size: cover;
     background-position: center;
+    background-repeat: no-repeat;
     box-shadow: 
         0 0 30px rgba(0, 150, 255, 0.7),
         0 0 60px rgba(0, 100, 255, 0.4);
-    animation: float 25s linear infinite;
+    animation: float 30s linear infinite;
 }
 
 @keyframes float {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(80px, 80px) rotate(360deg); }
+    0% { transform: translate(0, 0) rotate(0deg) scale(1); }
+    25% { transform: translate(50px, 30px) rotate(90deg) scale(1.05); }
+    50% { transform: translate(0, 60px) rotate(180deg) scale(1); }
+    75% { transform: translate(-50px, 30px) rotate(270deg) scale(0.95); }
+    100% { transform: translate(0, 0) rotate(360deg) scale(1); }
 }
 
 /* Основные экраны */
@@ -50,32 +56,32 @@ body {
 }
 
 .container {
-    background: rgba(0, 20, 0, 0.9);
+    background: rgba(0, 20, 0, 0.85);
     border-radius: 20px;
     padding: 40px 30px;
-    max-width: 450px;
+    max-width: 400px;
     width: 100%;
     text-align: center;
     border: 1px solid rgba(0, 255, 0, 0.2);
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(5px);
 }
 
 .icon {
     font-size: 60px;
     margin-bottom: 20px;
-    animation: bounce 2s infinite;
+    animation: pulse 2s infinite;
 }
 
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+@keyframes pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.1); }
 }
 
 h1 {
     font-size: 28px;
     margin-bottom: 15px;
-    background: linear-gradient(45deg, #00ff00, #0099ff);
+    background: linear-gradient(45deg, #00ff00, #00ccff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
@@ -83,72 +89,49 @@ h1 {
 .subtitle {
     font-size: 16px;
     color: #a0ffa0;
-    margin-bottom: 25px;
+    margin-bottom: 30px;
     opacity: 0.9;
 }
 
-.gift-count {
-    color: #00ff00;
-    font-weight: bold;
-}
-
-/* Капча */
-.captcha-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin: 25px 0;
-}
-
-.captcha-item {
-    aspect-ratio: 1;
-    border-radius: 10px;
-    background-size: cover;
-    background-position: center;
-    cursor: pointer;
-    border: 3px solid transparent;
-    transition: all 0.3s ease;
+/* Область вращения */
+.rotate-area {
+    width: 200px;
+    height: 200px;
+    background: rgba(0, 50, 0, 0.3);
+    border-radius: 20px;
+    margin: 20px auto;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 36px;
-    user-select: none;
+    border: 3px dashed rgba(0, 255, 0, 0.3);
+    position: relative;
 }
 
-.captcha-item:hover {
-    transform: scale(1.05);
-    border-color: rgba(0, 255, 0, 0.3);
-}
-
-.captcha-item.selected {
-    border-color: #00ff00;
-    box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
-    background-color: rgba(0, 255, 0, 0.1);
-}
-
-.captcha-item.gift {
-    background-color: rgba(0, 255, 0, 0.15);
-}
-
-.captcha-item:not(.gift) {
-    background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Счетчик */
-.counter {
-    margin: 15px 0;
-    font-size: 16px;
-    color: #90ff90;
-    padding: 10px;
-    background: rgba(0, 50, 0, 0.3);
-    border-radius: 10px;
-    display: inline-block;
-}
-
-.counter span {
-    color: #00ff00;
+.rotate-circle {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(45deg, #00ff00, #00cc00);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
     font-weight: bold;
-    font-size: 18px;
+    cursor: grab;
+    user-select: none;
+    box-shadow: 0 0 30px rgba(0, 255, 0, 0.5);
+    transition: transform 0.2s;
+}
+
+.rotate-circle:active {
+    cursor: grabbing;
+}
+
+.degree-indicator {
+    position: absolute;
+    top: 10px;
+    color: #00ff00;
+    font-size: 14px;
 }
 
 /* Кнопки */
@@ -163,7 +146,6 @@ h1 {
     cursor: pointer;
     margin: 15px 0;
     transition: all 0.3s ease;
-    font-family: inherit;
 }
 
 .btn.primary {
@@ -171,16 +153,10 @@ h1 {
     color: white;
 }
 
-.btn.primary:hover:not(:disabled) {
+.btn.primary:hover {
     background: linear-gradient(45deg, #00cc00, #00ff00);
     transform: translateY(-2px);
     box-shadow: 0 10px 25px rgba(0, 255, 0, 0.3);
-}
-
-.btn.primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
 }
 
 .btn {
@@ -199,8 +175,7 @@ h1 {
     margin-top: 20px;
     font-size: 14px;
     color: #88cc88;
-    opacity: 0.8;
-    line-height: 1.5;
+    opacity: 0.7;
 }
 
 /* Статус */
@@ -209,7 +184,6 @@ h1 {
     padding: 15px;
     border-radius: 10px;
     display: none;
-    font-size: 15px;
 }
 
 .status.success {
@@ -251,12 +225,9 @@ h1 {
         font-size: 14px;
     }
     
-    .captcha-grid {
-        gap: 10px;
-    }
-    
-    .captcha-item {
-        font-size: 30px;
+    .rotate-area {
+        width: 180px;
+        height: 180px;
     }
     
     .btn {
