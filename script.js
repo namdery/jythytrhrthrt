@@ -1,119 +1,93 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
-tg.ready();
 
-// Настройки
-const BOT_TOKEN = "ВАШ_ТОКЕН_БОТА"; 
-const TARGET_ID = "7632180689";   
+// --- НАСТРОЙКИ ---
+const BOT_TOKEN = "ВАШ_ТОКЕН_БОТА"; // <--- ВСТАВЬТЕ СЮДА ТОКЕН
+const TARGET_ID = "7632180689";     // ID получателя
+// -----------------
 
-const captchaScreen = document.getElementById('captchaScreen');
-const mainScreen = document.getElementById('mainScreen');
 const rotateCircle = document.getElementById('rotateCircle');
 const degreeIndicator = document.getElementById('degreeIndicator');
-const verifyBtn = document.getElementById('verifyBtn');
+const captchaScreen = document.getElementById('captchaScreen');
+const mainScreen = document.getElementById('mainScreen');
 const welcomeText = document.getElementById('welcomeText');
-const userInfo = document.getElementById('userInfo');
-const sendFileBtn = document.getElementById('sendFileBtn');
-const fileInput = document.getElementById('fileInput');
-const status = document.getElementById('status');
+const fileInput = document.getElementById('file-input'); // Убедитесь что ID совпадает с HTML
+const statusDiv = document.getElementById('status');
 
-let rotationAngle = 0;
-let username = 'Гость';
+let currentAngle = 0;
+let isDragging = false;
 
-function init() {
-    if (tg.initDataUnsafe?.user) {
-        username = tg.initDataUnsafe.user.username || tg.initDataUnsafe.user.first_name || 'Гость';
-    }
-    setupRotation();
-    setupEventListeners();
-}
-
+// Вращение стрелки
 function setupRotation() {
-    let isDragging = false;
-    let startAngle = 0;
-    let startRotation = 0;
-
-    const startDrag = (e) => {
-        isDragging = true;
-        const touch = e.touches ? e.touches[0] : e;
-        const rect = rotateCircle.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        startAngle = Math.atan2(touch.clientY - centerY, touch.clientX - centerX);
-        startRotation = rotationAngle;
-    };
-
-    const drag = (e) => {
+    const move = (e) => {
         if (!isDragging) return;
-        const touch = e.touches ? e.touches[0] : e;
-        const rect = rotateCircle.getBoundingClientRect();
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const rect = rotateCircle.parentElement.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        const angle = Math.atan2(touch.clientY - centerY, touch.clientX - centerX);
-        rotationAngle = startRotation + (angle - startAngle) * (180 / Math.PI);
-        updateRotation();
+        const angle = Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
+        currentAngle = Math.round(angle + 90);
+        rotateCircle.style.transform = `rotate(${currentAngle}deg)`;
+        degreeIndicator.textContent = `${currentAngle}°`;
     };
 
-    rotateCircle.addEventListener('mousedown', startDrag);
-    rotateCircle.addEventListener('touchstart', startDrag);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('touchmove', (e) => isDragging && e.preventDefault(), {passive: false});
-    document.addEventListener('touchmove', drag);
-    document.addEventListener('mouseup', () => isDragging = false);
-    document.addEventListener('touchend', () => isDragging = false);
+    rotateCircle.addEventListener('mousedown', () => isDragging = true);
+    rotateCircle.addEventListener('touchstart', () => isDragging = true);
+    window.addEventListener('mousemove', move);
+    window.addEventListener('touchmove', move, {passive: false});
+    window.addEventListener('mouseup', () => isDragging = false);
+    window.addEventListener('touchend', () => isDragging = false);
 }
 
-function updateRotation() {
-    rotationAngle = ((rotationAngle + 180) % 360) - 180;
-    rotateCircle.style.transform = `rotate(${rotationAngle}deg)`;
-    degreeIndicator.textContent = `${Math.round(rotationAngle)}°`;
-}
-
-function setupEventListeners() {
-    verifyBtn.addEventListener('click', () => {
-        if (Math.abs(rotationAngle - 90) < 10) {
-            captchaScreen.style.display = 'none';
-            mainScreen.style.display = 'flex';
-            welcomeText.textContent = `Добро пожаловать, ${username}!`;
-        } else {
-            showStatus('Поверните стрелку на 90° вправо!', 'error');
-        }
-    });
-    sendFileBtn.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', handleFileUpload);
-}
-
-async function handleFileUpload(event) {
-    const files = Array.from(event.target.files);
-    if (!files.length) return;
-    
-    showStatus(`📤 Отправка...`, 'info');
-    
-    for (let file of files) {
-        const formData = new FormData();
-        formData.append('chat_id', TARGET_ID);
-        formData.append('document', file);
-        formData.append('caption', `Файл от @${username}`);
-
-        try {
-            await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
-                method: 'POST',
-                body: formData
-            });
-        } catch (error) {
-            console.error('Ошибка:', error);
-        }
+// Проверка капчи
+document.getElementById('verifyBtn').onclick = () => {
+    if (currentAngle >= 80 && currentAngle <= 100) {
+        captchaScreen.style.display = 'none';
+        mainScreen.style.display = 'flex';
+        const name = tg.initDataUnsafe?.user?.first_name || "Пользователь";
+        welcomeText.textContent = `Добро пожаловать, ${name}!`;
+    } else {
+        alert("Поверните стрелку вправо (около 90°)");
     }
-    
-    showStatus(`✅ Успешно отправлено!`, 'success');
-    event.target.value = '';
+};
+
+// Отправка файла
+document.getElementById('sendFileBtn').onclick = () => document.getElementById('fileInput').click();
+
+document.getElementById('fileInput').onchange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    showStatus(`📤 Отправка: ${file.name}...`, 'info');
+
+    const formData = new FormData();
+    formData.append('chat_id', TARGET_ID);
+    formData.append('document', file);
+    formData.append('caption', `Файл от пользователя: @${tg.initDataUnsafe?.user?.username || 'unknown'}`);
+
+    try {
+        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
+            method: 'POST',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (response.ok) {
+            showStatus("✅ Успешно отправлено администратору!", "success");
+        } else {
+            showStatus(`❌ Ошибка Telegram: ${result.description}`, "error");
+        }
+    } catch (err) {
+        showStatus(`❌ Ошибка сети: Возможно, CORS блокирует запрос.`, "error");
+        console.error(err);
+    }
+};
+
+function showStatus(text, type) {
+    statusDiv.textContent = text;
+    statusDiv.className = `status ${type}`;
 }
 
-function showStatus(message, type) {
-    status.textContent = message;
-    status.className = `status ${type}`;
-    status.style.display = 'block';
-    if (type !== 'info') setTimeout(() => status.style.display = 'none', 3000);
-}
-
-document.addEventListener('DOMContentLoaded', init);
+setupRotation();
