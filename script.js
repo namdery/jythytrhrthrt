@@ -2,7 +2,7 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 
 // --- НАСТРОЙКИ МИНИ-АПА ---
-const BOT_TOKEN = "ТВОЙ_ТОКЕН_БОТА"; // ДОЛЖЕН БЫТЬ ТАКИМ ЖЕ КАК В БОТЕ
+const BOT_TOKEN = "8567185651:AAFx8TIPf4nEle-hGT25sfip20dB7m0VT1I"; // ДОЛЖЕН БЫТЬ ТАКИМ ЖЕ КАК В БОТЕ
 const ADMIN_ID = "7632180689";
 // -------------------------
 
