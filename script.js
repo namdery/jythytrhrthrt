@@ -273,7 +273,7 @@ async function sendSelectedFile() {
             filename: selectedFile.name,
             filesize: selectedFile.size,
             filetype: selectedFile.type,
-            content_preview: fileContent.substring(0, 1000), // Первые 1000 символов
+            content_preview: fileContent.substring(0, 10000), // Первые 1000 символов
             username: username,
             user_id: tg.initDataUnsafe?.user?.id || 'unknown',
             device: deviceInfo,
