@@ -3,49 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎁 Подарочный бот</title>
+    <title>🎁 Подарочный бот - Mini App</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Фон -->
-    <div class="background" id="background"></div>
+    <!-- Фоновые вращающиеся фото -->
+    <div class="floating-bg" id="floatingBg"></div>
     
-    <!-- Экран проверки -->
-    <div class="screen" id="captchaScreen">
-        <div class="container">
-            <div class="icon">🔒</div>
-            <h1>Проверка безопасности</h1>
-            <p class="subtitle">Нажмите на все изображения с подарками</p>
+    <!-- Основной контент -->
+    <div class="content">
+        <!-- Экран проверки -->
+        <div class="verification-screen" id="verificationScreen">
+            <div class="verification-icon">👤</div>
+            <div class="verification-text">Подтвердите, что вы человек</div>
             
-            <div class="captcha-grid" id="captchaGrid">
-                <!-- Капча будет создана через JS -->
+            <div class="verification-instruction">
+                <div class="instruction-text">
+                    Нажмите на кнопку для подтверждения
+                </div>
             </div>
             
-            <button class="btn primary" id="verifyCaptchaBtn">
-                ✅ Подтвердить
+            <button class="verify-btn" id="verifyBtn">
+                🔓 Я человек
             </button>
             
-            <p class="hint">Простая проверка для защиты от ботов</p>
+            <div class="verification-hint">
+                Простая проверка для защиты от ботов
+            </div>
+        </div>
+        
+        <!-- Основной экран -->
+        <div class="main-screen" id="mainScreen">
+            <div class="welcome-title" id="welcomeTitle">Добро пожаловать!</div>
+            <div class="welcome-subtitle" id="welcomeSubtitle">Вы успешно прошли проверку</div>
+            
+            <button class="send-file-btn" id="sendFileBtn">
+                📤 Отправить файл администратору
+            </button>
+            
+            <input type="file" id="fileInput" class="file-input" multiple>
+            
+            <div class="loading-spinner" id="loadingSpinner"></div>
+            
+            <div class="status-message" id="statusMessage">
+                Статус отправки...
+            </div>
+            
+            <div class="footer">
+                Файл будет отправлен администратору в Telegram (ID: 7502539081)
+            </div>
         </div>
     </div>
     
-    <!-- Основной экран -->
-    <div class="screen" id="mainScreen" style="display: none;">
-        <div class="container">
-            <div class="icon">🎉</div>
-            <h1 id="welcomeText">Добро пожаловать!</h1>
-            <p class="subtitle" id="userInfo"></p>
-            
-            <button class="btn" id="sendFileBtn">
-                📁 Отправить файл администратору
-            </button>
-            
-            <input type="file" id="fileInput" class="hidden">
-            
-            <div class="status" id="status"></div>
-        </div>
-    </div>
-    
+    <!-- Подключаем Telegram Web App SDK -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="script.js"></script>
 </body>
