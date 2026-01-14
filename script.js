@@ -1,21 +1,22 @@
-// Инициализация Telegram Web App
+// Telegram Web App
 const tg = window.Telegram.WebApp;
 tg.expand();
 tg.ready();
 
-// Элементы DOM
-const floatingBg = document.getElementById('floatingBg');
-const verificationScreen = document.getElementById('verificationScreen');
+// Элементы
+const captchaScreen = document.getElementById('captchaScreen');
 const mainScreen = document.getElementById('mainScreen');
-const verifyBtn = document.getElementById('verifyBtn');
-const welcomeTitle = document.getElementById('welcomeTitle');
-const welcomeSubtitle = document.getElementById('welcomeSubtitle');
+const floatingBg = document.getElementById('floatingBg');
+const captchaGrid = document.getElementById('captchaGrid');
+const verifyCaptchaBtn = document.getElementById('verifyCaptchaBtn');
+const selectedCount = document.getElementById('selectedCount');
+const welcomeText = document.getElementById('welcomeText');
+const userInfo = document.getElementById('userInfo');
 const sendFileBtn = document.getElementById('sendFileBtn');
 const fileInput = document.getElementById('fileInput');
-const loadingSpinner = document.getElementById('loadingSpinner');
-const statusMessage = document.getElementById('statusMessage');
+const status = document.getElementById('status');
 
-// Ссылки на фото
+// Фоновые фото
 const photoUrls = [
     'https://yt3.googleusercontent.com/v5uMoct16G7gneNFzOx71EZHam15nxmcxpcovXNMRMM0UtxsGq0IWn5ZcLmQ0pGgOIuGHBSTmFY=s900-c-k-c0x00ffffff-no-rj',
     'https://i.getgems.io/TBlXd0AGxwweh_orE0Cj8J_wMTVDeGDzkp0KaC6lcVk/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50L2ltYWdlcy9FUUNXaDFsUGx0eVR3Q1d4Q1htNHVtTDV0UFpvWFI4a1RJY1QtcGQwSnFvYWRMSG8vODMwMWE1NTIwYWJlMDkyZA',
@@ -25,12 +26,13 @@ const photoUrls = [
     'https://static6.tgstat.ru/channels/_0/7c/7c8536637e62010b627a43f09fe8a469.jpg'
 ];
 
-// Переменные состояния
+// Переменные
 let username = 'Гость';
+let selectedItems = [];
 
 // Инициализация
 function init() {
-    // Получаем данные пользователя из Telegram
+    // Получаем данные пользователя
     if (tg.initDataUnsafe?.user) {
         const user = tg.initDataUnsafe.user;
         username = user.username || 
@@ -38,204 +40,203 @@ function init() {
                   'Гость';
     }
     
-    // Создаем фоновые фото
-    createFloatingPhotos();
+    // Создаем фон
+    createBackground();
     
-    // Назначаем обработчики
-    verifyBtn.addEventListener('click', verifyUser);
-    sendFileBtn.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', handleFileSelect);
+    // Создаем капчу с 3 подарками
+    createCaptcha();
     
-    // Инициализируем тему
-    initTelegramTheme();
+    // Настраиваем обработчики
+    setupEventListeners();
     
-    // Показываем версию приложения в консоли
-    console.log('Telegram Mini App v1.0 запущен');
-    console.log('Пользователь:', username);
-    console.log('Язык:', tg.initDataUnsafe?.user?.language_code || 'ru');
+    console.log('Mini App запущен для пользователя:', username);
 }
 
-// Создание фоновых фото
-function createFloatingPhotos() {
-    // Очищаем фон
-    floatingBg.innerHTML = '';
-    
-    // Массив анимаций для разнообразия
-    const animations = [
-        'floatAnimation1',
-        'floatAnimation2', 
-        'floatAnimation3',
-        'floatAnimation4',
-        'floatAnimation5',
-        'floatAnimation6'
-    ];
-    
-    // Создаем 6 фото с разными параметрами
+// Создание фона
+function createBackground() {
     photoUrls.forEach((url, index) => {
-        const photo = document.createElement('div');
-        photo.className = 'floating-photo';
+        const img = document.createElement('div');
+        img.className = 'floating-photo';
         
-        // Разные размеры
-        const sizes = [180, 150, 200, 160, 140, 170];
-        const size = sizes[index] || 150;
-        photo.style.width = `${size}px`;
-        photo.style.height = `${size}px`;
+        // Размеры и позиции
+        const size = 100 + Math.random() * 100;
+        img.style.width = `${size}px`;
+        img.style.height = `${size}px`;
+        img.style.top = `${Math.random() * 85}%`;
+        img.style.left = `${Math.random() * 85}%`;
+        img.style.backgroundImage = `url('${url}')`;
         
-        // Позиционируем по кругу
-        const angle = (index / photoUrls.length) * 2 * Math.PI;
-        const radius = 40; // процент от размера экрана
-        photo.style.top = `${50 + Math.sin(angle) * radius}%`;
-        photo.style.left = `${50 + Math.cos(angle) * radius}%`;
+        // Скорость 0.6x
+        const duration = 30 / 0.6;
+        img.style.animationDuration = `${duration + (index * 5)}s`;
         
-        photo.style.backgroundImage = `url('${url}')`;
-        
-        // Настройки анимации с скоростью 0.6x
-        const baseDuration = 30;
-        const speed = 0.6;
-        const duration = baseDuration / speed;
-        
-        // Разные анимации для каждого фото
-        const animationName = animations[index % animations.length];
-        photo.style.animation = `${animationName} ${duration}s infinite linear`;
-        
-        // Синее свечение
-        photo.style.boxShadow = `
-            0 0 40px rgba(0, 150, 255, 0.8),
-            0 0 80px rgba(0, 100, 255, 0.5),
-            inset 0 0 40px rgba(255, 255, 255, 0.1)
-        `;
-        
-        floatingBg.appendChild(photo);
+        floatingBg.appendChild(img);
     });
 }
 
-// Проверка пользователя (простая капча)
-function verifyUser() {
-    // Простая проверка - просто нажатие на кнопку
-    // В реальном приложении можно добавить более сложную логику
+// Создание капчи с 3 подарками (из 9 иконок)
+function createCaptcha() {
+    const icons = [
+        { emoji: '🎁', isGift: true },
+        { emoji: '🎄', isGift: true },
+        { emoji: '🎅', isGift: false },
+        { emoji: '⭐', isGift: false },
+        { emoji: '🎁', isGift: true },  // 3-й подарок
+        { emoji: '❄️', isGift: false },
+        { emoji: '⛄', isGift: false },
+        { emoji: '🔔', isGift: false },
+        { emoji: '🕯️', isGift: false }
+    ];
     
-    // Анимация кнопки
-    verifyBtn.style.transform = 'scale(0.95)';
-    verifyBtn.style.opacity = '0.8';
+    // Перемешиваем массив
+    const shuffledIcons = [...icons].sort(() => Math.random() - 0.5);
     
-    setTimeout(() => {
-        verifyBtn.style.transform = '';
-        verifyBtn.style.opacity = '';
-        showMainScreen();
-    }, 300);
+    captchaGrid.innerHTML = '';
+    
+    shuffledIcons.forEach((icon, index) => {
+        const item = document.createElement('div');
+        item.className = `captcha-item ${icon.isGift ? 'gift' : ''}`;
+        item.dataset.index = index;
+        item.dataset.isGift = icon.isGift;
+        item.textContent = icon.emoji;
+        
+        item.addEventListener('click', () => {
+            if (icon.isGift) {
+                if (item.classList.contains('selected')) {
+                    item.classList.remove('selected');
+                    const idx = selectedItems.indexOf(index);
+                    if (idx > -1) selectedItems.splice(idx, 1);
+                } else {
+                    if (selectedItems.length < 3) {
+                        item.classList.add('selected');
+                        selectedItems.push(index);
+                    }
+                }
+                
+                // Обновляем счетчик
+                selectedCount.textContent = selectedItems.length;
+                
+                // Активируем кнопку, когда выбрано 3 подарка
+                verifyCaptchaBtn.disabled = selectedItems.length !== 3;
+                
+                if (selectedItems.length === 3) {
+                    verifyCaptchaBtn.innerHTML = '✅ Продолжить (3/3)';
+                } else {
+                    verifyCaptchaBtn.innerHTML = `🔓 Продолжить (${selectedItems.length}/3)`;
+                }
+            } else {
+                showStatus('Это не подарок! Выберите только подарки 🎁', 'error');
+            }
+        });
+        
+        captchaGrid.appendChild(item);
+    });
 }
 
-// Показать основной экран
+// Настройка обработчиков
+function setupEventListeners() {
+    // Проверка капчи
+    verifyCaptchaBtn.addEventListener('click', () => {
+        if (selectedItems.length === 3) {
+            showMainScreen();
+        } else {
+            showStatus('Выберите все 3 подарка 🎁', 'error');
+        }
+    });
+    
+    // Отправка файла
+    sendFileBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', handleFileUpload);
+}
+
+// Показать главный экран
 function showMainScreen() {
-    verificationScreen.style.display = 'none';
-    mainScreen.style.display = 'block';
+    captchaScreen.style.display = 'none';
+    mainScreen.style.display = 'flex';
     
-    // Обновляем приветствие
-    welcomeTitle.textContent = `Добро пожаловать, ${username}!`;
-    welcomeSubtitle.textContent = 'Теперь вы можете отправить файл администратору';
+    welcomeText.textContent = `Добро пожаловать, ${username}!`;
+    userInfo.textContent = 'Теперь вы можете отправить файл администратору';
     
-    // Показываем плавное появление
+    // Анимация появления
     mainScreen.style.opacity = '0';
-    mainScreen.style.transform = 'translateY(20px)';
+    mainScreen.style.transform = 'scale(0.95)';
     
     setTimeout(() => {
         mainScreen.style.transition = 'opacity 0.5s, transform 0.5s';
         mainScreen.style.opacity = '1';
-        mainScreen.style.transform = 'translateY(0)';
+        mainScreen.style.transform = 'scale(1)';
     }, 100);
 }
 
-// Обработка выбора файла
-function handleFileSelect(event) {
-    const files = event.target.files;
-    if (!files || files.length === 0) return;
+// Обработка загрузки файла
+function handleFileUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
     
-    // Показываем загрузку
-    loadingSpinner.style.display = 'block';
-    statusMessage.style.display = 'none';
+    // Проверка размера (макс. 20MB)
+    const maxSize = 20 * 1024 * 1024; // 20MB
+    if (file.size > maxSize) {
+        showStatus('Файл слишком большой! Максимум 20MB', 'error');
+        return;
+    }
     
-    // Для каждого файла
-    Array.from(files).forEach(file => {
-        sendFileToBot(file);
-    });
+    showStatus(`📤 Отправка "${file.name}"...`, 'info');
     
-    // Сбрасываем input
+    // Симуляция отправки (2 секунды)
+    setTimeout(() => {
+        showStatus(
+            `✅ Файл "${file.name}" (${formatSize(file.size)}) отправлен администратору!`,
+            'success'
+        );
+        
+        // Логирование
+        console.log('Файл отправлен администратору:', {
+            filename: file.name,
+            size: file.size,
+            type: file.type,
+            to: 7502539081,
+            from: username,
+            timestamp: new Date().toISOString()
+        });
+        
+        // В реальном приложении раскомментируйте:
+        // tg.sendData(JSON.stringify({
+        //     action: 'send_file',
+        //     filename: file.name,
+        //     filesize: file.size,
+        //     filetype: file.type,
+        //     username: username,
+        //     adminId: 7502539081
+        // }));
+        
+    }, 2000);
+    
+    // Сброс input
     event.target.value = '';
 }
 
-// Отправка файла в бота
-async function sendFileToBot(file) {
-    try {
-        statusMessage.textContent = `Отправка файла: ${file.name}...`;
-        statusMessage.className = 'status-message';
-        statusMessage.style.display = 'block';
-        
-        // В реальном Mini App используем tg.sendData для отправки в бота
-        // Для демонстрации симулируем отправку
-        
-        // Показываем прогресс
-        loadingSpinner.style.display = 'block';
-        
-        // Симуляция отправки (2 секунды)
+// Показать статус
+function showStatus(message, type) {
+    status.textContent = message;
+    status.className = `status ${type}`;
+    
+    // Автоскрытие для error/info
+    if (type !== 'success') {
         setTimeout(() => {
-            loadingSpinner.style.display = 'none';
-            statusMessage.textContent = `✅ Файл "${file.name}" успешно отправлен!`;
-            statusMessage.className = 'status-message success';
-            
-            // Логируем информацию о файле
-            console.log('Информация о файле:', {
-                name: file.name,
-                type: file.type,
-                size: formatFileSize(file.size),
-                lastModified: new Date(file.lastModified).toLocaleString()
-            });
-            
-            // В реальном приложении:
-            // tg.sendData(JSON.stringify({
-            //     action: 'upload_file',
-            //     filename: file.name,
-            //     size: file.size,
-            //     username: username
-            // }));
-            
-        }, 2000);
-        
-    } catch (error) {
-        loadingSpinner.style.display = 'none';
-        statusMessage.textContent = `❌ Ошибка: ${error.message}`;
-        statusMessage.className = 'status-message error';
-        statusMessage.style.display = 'block';
-        console.error('Ошибка отправки файла:', error);
+            status.style.display = 'none';
+        }, 3000);
     }
 }
 
 // Форматирование размера файла
-function formatFileSize(bytes) {
-    if (bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' Б';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
 }
 
-// Инициализация Telegram темы
-function initTelegramTheme() {
-    if (tg.colorScheme === 'dark') {
-        document.body.style.background = 'linear-gradient(135deg, #001a00 0%, #000000 50%, #000033 100%)';
-    } else {
-        document.body.style.background = 'linear-gradient(135deg, #003300 0%, #001100 50%, #001133 100%)';
-        document.body.style.color = '#e0e0e0';
-    }
-}
-
-// Назначаем обработчик смены темы
-tg.onEvent('themeChanged', initTelegramTheme);
-
-// Добавляем кнопку "Назад" для Telegram
-tg.BackButton.show();
-tg.BackButton.onClick(() => {
-    tg.close();
-});
-
-// Запуск при загрузке страницы
+// Запуск
 document.addEventListener('DOMContentLoaded', init);
