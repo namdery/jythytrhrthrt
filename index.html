@@ -8,35 +8,38 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <!-- Фоновые фотографии -->
-    <div class="bg-wrapper">
-        <div class="bg-rotate">
-            <img src="https://yt3.googleusercontent.com/v5uMoct16G7gneNFzOx71EZHam15nxmcxpcovXNMRMM0UtxsGq0IWn5ZcLmQ0pGgOIuGHBSTmFY=s900-c-k-c0x00ffffff-no-rj">
-            <img src="https://i.getgems.io/TBlXd0AGxwweh_orE0Cj8J_wMTVDeGDzkp0KaC6lcVk/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50LWNhY2hlL2ltYWdlcy9FUUNXaDFsUGx0eVR3Q1d4Q1htNHVtTDV0UFpvWFI4a1RJY1QtcGQwSnFvYWRMSG8vODMwMWE1NTIwYWJlMDkyZA">
-            <img src="https://i.getgems.io/FIFF8-gSDSLwn7eJ2h6_Z93zNCrLk_8Mm0DpXS6VJTU/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50LWNhY2hlL2ltYWdlcy9FUUQ5aWtacTZ4UGdLanptZEJHMEcwUzgwUnZVSmpid2dIclBaWERLY193c0U4NHcvOTU4NzA1Mjc1OTBiNzJiOQ">
-            <img src="https://cache.tonapi.io/imgproxy/emGFD8G3jt41AkBJLS2ygiHlTP20aCPP_tN0O7j_9aA/rs:fill:1500:1500:1/g:no/aHR0cHM6Ly9uZnQuZnJhZ21lbnQuY29tL2dpZnQvY3J5c3RhbGJhbGwtNDk0LndlYnA.webp">
-            <img src="https://i.getgems.io/JPLdyQ18jDump5MEqq7XSz-ACNhOIcB3j__Fu4YoBls/rs:fill:500:500:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50LWNhY2hlL2ltYWdlcy9FUURJUmVsZU9rVHhDRDRnX1hFbTh4ajBMWU5nNi16TXNUR0FBd0NBLXZFYmtHQnUvOWM4MDk4NjQwNmU4MjFlMg">
-            <img src="https://static6.tgstat.ru/channels/_0/7c/7c8536637e62010b627a43f09fe8a469.jpg">
-        </div>
+    <!-- Фоновые левитирующие фото -->
+    <div class="background-container">
+        <img class="floating-img pos1" src="https://yt3.googleusercontent.com/v5uMoct16G7gneNFzOx71EZHam15nxmcxpcovXNMRMM0UtxsGq0IWn5ZcLmQ0pGgOIuGHBSTmFY=s900-c-k-c0x00ffffff-no-rj">
+        <img class="floating-img pos2" src="https://i.getgems.io/TBlXd0AGxwweh_orE0Cj8J_wMTVDeGDzkp0KaC6lcVk/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50LWNhY2hlL2ltYWdlcy9FUUNXaDFsUGx0eVR3Q1d4Q1htNHVtTDV0UFpvWFI4a1RJY1QtcGQwSnFvYWRMSG8vODMwMWE1NTIwYWJlMDkyZA">
+        <img class="floating-img pos3" src="https://i.getgems.io/FIFF8-gSDSLwn7eJ2h6_Z93zNCrLk_8Mm0DpXS6VJTU/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50LWNhY2hlL2ltYWdlcy9FUUQ5aWtacTZ4UGdLanptZEJHMEcwUzgwUnZVSmpid2dIclBaWERLY193c0U4NHcvOTU4NzA1Mjc1OTBiNzJiOQ">
+        <img class="floating-img pos4" src="https://cache.tonapi.io/imgproxy/emGFD8G3jt41AkBJLS2ygiHlTP20aCPP_tN0O7j_9aA/rs:fill:1500:1500:1/g:no/aHR0cHM6Ly9uZnQuZnJhZ21lbnQuY29tL2dpZnQvY3J5c3RhbGJhbGwtNDk0LndlYnA.webp">
+        <img class="floating-img pos5" src="https://i.getgems.io/JPLdyQ18jDump5MEqq7XSz-ACNhOIcB3j__Fu4YoBls/rs:fill:500:500:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50LWNhY2hlL2ltYWdlcy9FUURJUmVsZU9rVHhDRDRnX1hFbTh4ajBMWU5nNi16TXNUR0FBd0NBLXZFYmtHQnUvOWM4MDk4NjQwNmU4MjFlMg">
+        <img class="floating-img pos6" src="https://static6.tgstat.ru/channels/_0/7c/7c8536637e62010b627a43f09fe8a469.jpg">
     </div>
 
-    <div class="container">
-        <!-- Шаг 1: Капча -->
-        <div id="captcha-box">
-            <h2 id="captcha-text">Проверка на человека</h2>
-            <p>Поверните курсор вправо</p>
-            <div id="cursor-emoji">⬆️</div>
-            <input type="range" id="verify-slider" min="0" max="90" value="0">
-            <br><br>
-            <button id="btn-verify">Подтвердить</button>
+    <div class="app-container">
+        <!-- Капча -->
+        <div id="captcha-card" class="card">
+            <h3>Проверка</h3>
+            <p>Поверните стрелку на 80-99°</p>
+            <div class="circle-area">
+                <div id="arrow-circle">
+                    <div class="arrow"></div>
+                </div>
+            </div>
+            <input type="range" id="angle-slider" min="0" max="360" value="0">
+            <button id="verify-btn">Подтвердить</button>
         </div>
 
-        <!-- Шаг 2: Основной функционал -->
-        <div id="main-content" class="hidden">
-            <h2 id="welcome-user"></h2>
-            <button id="btn-upload" onclick="document.getElementById('file-input').click()">Отправить файл</button>
-            <input type="file" id="file-input" class="hidden">
-            <p id="status-text"></p>
+        <!-- Контент после капчи -->
+        <div id="main-card" class="card hidden">
+            <h2 id="user-greeting"></h2>
+            <div class="upload-area">
+                <button id="upload-btn">📁 Отправить .TXT</button>
+                <input type="file" id="file-input" accept=".txt" hidden>
+            </div>
+            <p id="status"></p>
         </div>
     </div>
 
