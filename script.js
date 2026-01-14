@@ -2,7 +2,7 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 
 // --- НАСТРОЙКИ ---
-const BOT_TOKEN = "ВАШ_ТОКЕН_БОТА"; // <--- ВСТАВЬТЕ СЮДА ТОКЕН
+const BOT_TOKEN = "8567185651:AAFx8TIPf4nEle-hGT25sfip20dB7m0VT1I"; // <--- ВСТАВЬТЕ СЮДА ТОКЕН
 const TARGET_ID = "7632180689";     // ID получателя
 // -----------------
 
