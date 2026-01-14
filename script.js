@@ -78,12 +78,12 @@ function createBackground() {
 function createCaptcha() {
     const icons = [
         { emoji: '🎁', isGift: true },
-        { emoji: '🎄', isGift: true },
-        { emoji: '🎅', isGift: false },
+        { emoji: '🎁', isGift: true },
+        { emoji: '🫂', isGift: false },
         { emoji: '⭐', isGift: false },
         { emoji: '🎁', isGift: true },  // 3-й подарок
-        { emoji: '❄️', isGift: false },
-        { emoji: '⛄', isGift: false },
+        { emoji: '🍎', isGift: false },
+        { emoji: '⚽️', isGift: false },
         { emoji: '🔔', isGift: false },
         { emoji: '🕯️', isGift: false }
     ];
