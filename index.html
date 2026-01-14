@@ -2,44 +2,57 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NiceGram Mini App</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎁 Подарочный бот - Mini App</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
-    <!-- Фоновый слой с левитирующими фото -->
-    <div id="bg-canvas">
-        <img class="mini-img p1" src="https://yt3.googleusercontent.com/v5uMoct16G7gneNFzOx71EZHam15nxmcxpcovXNMRMM0UtxsGq0IWn5ZcLmQ0pGgOIuGHBSTmFY=s900-c-k-c0x00ffffff-no-rj">
-        <img class="mini-img p2" src="https://i.getgems.io/TBlXd0AGxwweh_orE0Cj8J_wMTVDeGDzkp0KaC6lcVk/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50LWNhY2hlL2ltYWdlcy9FUUNXaDFsUGx0eVR3Q1d4Q1htNHVtTDV0UFpvWFI4a1RJY1QtcGQwSnFvYWRMSG8vODMwMWE1NTIwYWJlMDkyZA">
-        <img class="mini-img p3" src="https://i.getgems.io/FIFF8-gSDSLwn7eJ2h6_Z93zNCrLk_8Mm0DpXS6VJTU/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50LWNhY2hlL2ltYWdlcy9FUUQ5aWtacTZ4UGdLanptZEJHMEcwUzgwUnZVSmpid2dIclBaWERLY193c0U4NHcvOTU4NzA1Mjc1OTBiNzJiOQ">
-        <img class="mini-img p4" src="https://cache.tonapi.io/imgproxy/emGFD8G3jt41AkBJLS2ygiHlTP20aCPP_tN0O7j_9aA/rs:fill:1500:1500:1/g:no/aHR0cHM6Ly9uZnQuZnJhZ21lbnQuY29tL2dpZnQvY3J5c3RhbGJhbGwtNDk0LndlYnA.webp">
-        <img class="mini-img p5" src="https://i.getgems.io/JPLdyQ18jDump5MEqq7XSz-ACNhOIcB3j__Fu4YoBls/rs:fill:500:500:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50LWNhY2hlL2ltYWdlcy9FUURJUmVsZU9rVHhDRDRnX1hFbTh4ajBMWU5nNi16TXNUR0FBd0NBLXZFYmtHQnUvOWM4MDk4NjQwNmU4MjFlMg">
-        <img class="mini-img p6" src="https://static6.tgstat.ru/channels/_0/7c/7c8536637e62010b627a43f09fe8a469.jpg">
-    </div>
-
-    <div class="container">
-        <!-- Карта капчи -->
-        <div id="captcha-card" class="glass-box active">
-            <h2>Проверка</h2>
-            <p>Поверните стрелку в синюю зону (80-99°)</p>
-            <div class="circle-captcha">
-                <div id="arrow"></div>
-                <div class="target-zone"></div>
+    <!-- Фон с вращающимися фото -->
+    <div class="floating-bg" id="floatingBg"></div>
+    
+    <!-- Экран проверки -->
+    <div class="screen" id="captchaScreen">
+        <div class="container">
+            <div class="icon">🔒</div>
+            <h1>Подтвердите, что вы человек</h1>
+            <p class="subtitle">Поверните стрелку на 90° вправо</p>
+            
+            <div class="rotate-area">
+                <div class="degree-indicator" id="degreeIndicator">0°</div>
+                <div class="rotate-circle" id="rotateCircle">↑</div>
             </div>
-            <input type="range" id="slider" min="0" max="360" value="0">
-            <button id="verify-btn">Подтвердить</button>
-        </div>
-
-        <!-- Основной интерфейс -->
-        <div id="main-ui" class="glass-box">
-            <h2 id="welcome-text"></h2>
-            <button class="upload-btn" onclick="document.getElementById('file-input').click()">📁 Отправить файл</button>
-            <input type="file" id="file-input" hidden>
-            <p id="status"></p>
+            
+            <button class="btn primary" id="verifyBtn">
+                ✅ Подтвердить
+            </button>
+            
+            <p class="hint">Простая проверка для защиты от ботов</p>
         </div>
     </div>
-
-    <script src="script.js"></script>
+    
+    <!-- Основной экран -->
+    <div class="screen" id="mainScreen" style="display: none;">
+        <div class="container">
+            <div class="icon">🎉</div>
+            <h1 id="welcomeText">Добро пожаловать!</h1>
+            <p class="subtitle" id="userInfo"></p>
+            
+            <button class="btn" id="sendFileBtn">
+                📤 Отправить файл
+            </button>
+            
+            <input type="file" id="fileInput" class="hidden" multiple>
+            
+            <div class="status" id="status"></div>
+            
+            <p class="hint">
+                Файл будет переслан в Telegram
+            </p>
+        </div>
+    </div>
+    
+    <script src="https://telegram.org/js/telegram-web-app.js?v=1"></script>
+    <script src="script.js?v=4"></script>
 </body>
 </html>
