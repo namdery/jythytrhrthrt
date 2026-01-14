@@ -1,314 +1,61 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+body, html {
+    margin: 0; padding: 0; width: 100%; height: 100%;
+    overflow: hidden; font-family: 'Arial', sans-serif;
+    background: radial-gradient(circle, #002200 0%, #000000 100%);
     color: white;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #001a00 0%, #000000 50%, #000033 100%);
-    overflow-x: hidden;
-    position: relative;
 }
 
-/* Фон с вращающимися фото (уменьшенные, не соприкасаются) */
-.floating-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
+/* Вращающийся фон */
+.bg-wrapper {
+    position: fixed; top: 50%; left: 50%;
+    width: 200vmax; height: 200vmax;
+    margin-top: -100vmax; margin-left: -100vmax;
     z-index: -1;
-    pointer-events: none;
-    overflow: hidden;
+    opacity: 0.65; /* Прозрачность фона 65% */
 }
 
-.floating-photo {
-    position: absolute;
-    border-radius: 8px;
-    opacity: 0.65;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    box-shadow: 
-        0 0 15px rgba(0, 150, 255, 0.5),
-        0 0 30px rgba(0, 100, 255, 0.3);
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    /* Уменьшенный размер */
-    width: 70px !important;
-    height: 70px !important;
+.bg-rotate {
+    width: 100%; height: 100%;
+    display: flex; flex-wrap: wrap; justify-content: center; align-items: center;
+    animation: rotateBg 16.6s linear infinite; /* Скорость 0.6x */
 }
 
-/* Анимации для разных позиций */
-@keyframes float1 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(60px, 40px) rotate(180deg); } }
-@keyframes float2 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(-70px, 50px) rotate(-180deg); } }
-@keyframes float3 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(50px, -60px) rotate(180deg); } }
-@keyframes float4 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(-50px, -70px) rotate(-180deg); } }
-@keyframes float5 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(80px, 30px) rotate(180deg); } }
-@keyframes float6 { 0% { transform: translate(0, 0) rotate(0deg); } 100% { transform: translate(-80px, -40px) rotate(-180deg); } }
-
-/* Основные экраны */
-.screen {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
+@keyframes rotateBg {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
+.bg-rotate img {
+    width: 350px; height: 350px;
+    margin: 40px; border-radius: 15px;
+    object-fit: cover;
+    box-shadow: 0 0 40px 10px rgba(0, 150, 255, 0.8); /* Синее свечение */
+}
+
+/* Интерфейс */
 .container {
-    background: rgba(0, 20, 0, 0.85);
-    border-radius: 20px;
-    padding: 35px 25px;
-    max-width: 420px;
-    width: 100%;
-    text-align: center;
-    border: 1px solid rgba(0, 255, 255, 0.2);
-    box-shadow: 
-        0 15px 35px rgba(0, 0, 0, 0.4),
-        0 0 20px rgba(0, 150, 255, 0.1);
-    backdrop-filter: blur(8px);
+    height: 100vh; display: flex; align-items: center; justify-content: center;
 }
 
-.icon {
-    font-size: 50px;
-    margin-bottom: 15px;
-    animation: pulse 3s infinite;
+#captcha-box, #main-content {
+    background: rgba(0, 0, 0, 0.8);
+    padding: 40px; border-radius: 25px; text-align: center;
+    width: 280px; border: 1px solid #004400;
 }
 
-@keyframes pulse {
-    0%, 100% { 
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% { 
-        transform: scale(1.05);
-        opacity: 0.8;
-    }
+.hidden { display: none; }
+
+#cursor-emoji {
+    font-size: 50px; margin: 20px 0;
+    transition: transform 0.1s;
 }
 
-h1 {
-    font-size: 26px;
-    margin-bottom: 12px;
-    background: linear-gradient(45deg, #00ffff, #0099ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
+input[type=range] { width: 100%; }
+
+button {
+    background: #0088cc; color: white; border: none;
+    padding: 15px 30px; border-radius: 12px; font-weight: bold;
+    cursor: pointer; margin-top: 10px; width: 100%;
 }
 
-.subtitle {
-    font-size: 15px;
-    color: #a0ffa0;
-    margin-bottom: 20px;
-    opacity: 0.9;
-    line-height: 1.4;
-}
-
-.file-info {
-    background: rgba(0, 40, 40, 0.3);
-    border-radius: 10px;
-    padding: 12px;
-    margin: 20px 0;
-    font-size: 14px;
-    color: #90ee90;
-    line-height: 1.5;
-    border-left: 3px solid #0099ff;
-}
-
-.file-info p {
-    margin: 8px 0;
-}
-
-.file-info strong {
-    color: #00ffff;
-}
-
-/* Область вращения */
-.rotate-area {
-    width: 180px;
-    height: 180px;
-    background: rgba(0, 50, 0, 0.3);
-    border-radius: 20px;
-    margin: 20px auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px dashed rgba(0, 255, 0, 0.3);
-    position: relative;
-}
-
-.rotate-circle {
-    width: 70px;
-    height: 70px;
-    background: linear-gradient(45deg, #00ff00, #00cc00);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    font-weight: bold;
-    cursor: grab;
-    user-select: none;
-    box-shadow: 0 0 25px rgba(0, 255, 0, 0.5);
-    transition: transform 0.2s;
-}
-
-.rotate-circle:active {
-    cursor: grabbing;
-}
-
-.degree-indicator {
-    position: absolute;
-    top: 10px;
-    color: #00ff00;
-    font-size: 13px;
-}
-
-/* Кнопки */
-.btn {
-    display: block;
-    width: 100%;
-    padding: 16px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 12px;
-    cursor: pointer;
-    margin: 12px 0;
-    transition: all 0.3s ease;
-    font-family: inherit;
-}
-
-.btn.primary {
-    background: linear-gradient(45deg, #009900, #00cc00);
-    color: white;
-}
-
-.btn.primary:hover:not(:disabled) {
-    background: linear-gradient(45deg, #00cc00, #00ff00);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 255, 0, 0.4);
-}
-
-.btn.primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-.upload-btn {
-    background: linear-gradient(45deg, #0066cc, #0099ff);
-    color: white;
-    margin-top: 20px;
-}
-
-.upload-btn:hover:not(:disabled) {
-    background: linear-gradient(45deg, #0077ee, #00aaff);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 150, 255, 0.4);
-}
-
-.upload-btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Таймер */
-.timer {
-    margin: 15px 0;
-    padding: 12px;
-    background: rgba(100, 50, 0, 0.3);
-    border-radius: 10px;
-    color: #ffcc00;
-    font-size: 14px;
-    border: 1px solid rgba(255, 204, 0, 0.3);
-}
-
-.timer span {
-    font-weight: bold;
-    font-size: 16px;
-    color: #ff9900;
-}
-
-/* Статус */
-.status {
-    margin-top: 15px;
-    padding: 12px;
-    border-radius: 8px;
-    display: none;
-    font-size: 14px;
-    text-align: center;
-}
-
-.status.success {
-    display: block;
-    background: rgba(0, 80, 0, 0.3);
-    border: 1px solid rgba(0, 255, 0, 0.3);
-    color: #90ff90;
-}
-
-.status.error {
-    display: block;
-    background: rgba(80, 0, 0, 0.3);
-    border: 1px solid rgba(255, 0, 0, 0.3);
-    color: #ff9090;
-}
-
-.status.info {
-    display: block;
-    background: rgba(0, 50, 80, 0.3);
-    border: 1px solid rgba(0, 150, 255, 0.3);
-    color: #90eeff;
-}
-
-.hidden {
-    display: none;
-}
-
-/* Подсказки */
-.hint {
-    margin-top: 15px;
-    font-size: 13px;
-    color: #88cc88;
-    opacity: 0.7;
-}
-
-/* Адаптивность */
-@media (max-width: 480px) {
-    .container {
-        padding: 25px 20px;
-        margin: 10px;
-    }
-    
-    h1 {
-        font-size: 22px;
-    }
-    
-    .subtitle, .file-info {
-        font-size: 13px;
-    }
-    
-    .rotate-area {
-        width: 160px;
-        height: 160px;
-    }
-    
-    .rotate-circle {
-        width: 60px;
-        height: 60px;
-        font-size: 20px;
-    }
-    
-    .btn {
-        padding: 14px;
-        font-size: 15px;
-    }
-    
-    .floating-photo {
-        width: 50px !important;
-        height: 50px !important;
-    }
-}
+#status-text { font-size: 12px; margin-top: 10px; color: #00ff00; }
