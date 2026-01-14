@@ -1,78 +1,84 @@
 body, html {
     margin: 0; padding: 0; width: 100%; height: 100%;
-    background: radial-gradient(circle, #001a00 0%, #000000 100%);
-    color: white; font-family: sans-serif; overflow: hidden;
+    background: radial-gradient(circle, #001a00 0%, #000000 100%); /* Темно-зеленый градиент в черный */
+    color: white; font-family: 'Segoe UI', sans-serif; overflow: hidden;
 }
 
-/* Фон с фотографиями */
-.background-layer {
-    position: fixed; width: 100%; height: 100%;
-    z-index: -1; pointer-events: none;
+/* ФОНОВЫЙ СЛОЙ */
+.bg-layer {
+    position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    z-index: -1; /* Строго на заднем фоне */
+    pointer-events: none;
 }
 
-.float-img {
+.mini-photo {
     position: absolute;
-    width: 70px; height: 70px; /* Намного меньше */
-    object-fit: cover; border-radius: 12px;
-    opacity: 0.4; /* Полупрозрачные */
-    box-shadow: 0 0 15px 5px rgba(0, 100, 255, 0.6); /* Синее свечение */
-    animation: levitate 6s ease-in-out infinite;
+    width: 55px; height: 55px; /* Намного меньше */
+    object-fit: cover; border-radius: 10px;
+    opacity: 0.65; /* Прозрачность 65% */
+    box-shadow: 0 0 15px 4px rgba(0, 100, 255, 0.8); /* Синее свечение */
+    animation: levitation 8s ease-in-out infinite, rotation 20s linear infinite;
 }
 
-/* Анимация левитации (плавание в воздухе) */
-@keyframes levitate {
-    0%, 100% { transform: translateY(0) rotate(0deg); }
-    50% { transform: translateY(-25px) rotate(10deg); }
+/* Анимация левитации (плавное движение) */
+@keyframes levitation {
+    0%, 100% { transform: translate(0, 0); }
+    33% { transform: translate(15px, -30px); }
+    66% { transform: translate(-10px, -15px); }
 }
 
-/* Расположение фото в разных частях экрана */
-.p1 { top: 10%; left: 15%; animation-delay: 0s; }
-.p2 { top: 20%; right: 15%; animation-delay: 1s; }
-.p3 { top: 50%; left: 8%; animation-delay: 2s; }
-.p4 { bottom: 20%; right: 10%; animation-delay: 0.5s; }
-.p5 { bottom: 10%; left: 20%; animation-delay: 3s; }
-.p6 { top: 40%; right: 25%; animation-delay: 1.5s; }
+/* Анимация вращения 0.6x (медленная) */
+@keyframes rotation {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
 
-/* Интерфейс */
-.app-ui {
+/* Позиции для фото */
+.p1 { top: 10%; left: 10%; animation-delay: 0s; }
+.p2 { top: 15%; right: 15%; animation-delay: 1s; }
+.p3 { top: 50%; left: 5%; animation-delay: 2s; }
+.p4 { bottom: 20%; right: 10%; animation-delay: 3s; }
+.p5 { bottom: 10%; left: 20%; animation-delay: 4s; }
+.p6 { top: 40%; right: 5%; animation-delay: 1.5s; }
+
+/* ИНТЕРФЕЙС */
+.main-wrapper {
     height: 100vh; display: flex; align-items: center; justify-content: center;
 }
 
-.glass-card {
+.ui-card {
     background: rgba(0, 0, 0, 0.8);
-    padding: 25px; border-radius: 20px;
-    width: 250px; text-align: center;
-    border: 1px solid #004400;
+    padding: 30px; border-radius: 20px;
+    width: 270px; text-align: center;
+    border: 1px solid #004d00;
+    backdrop-filter: none; /* Без эффекта размытия */
 }
 
 .hidden { display: none; }
 
-/* Капча: Круг со стрелкой */
-.circle-box {
-    width: 100px; height: 100px;
+.captcha-container {
+    width: 120px; height: 120px;
     border: 2px solid #0088cc; border-radius: 50%;
     margin: 20px auto; position: relative;
 }
 
-.arrow {
-    width: 4px; height: 45px; background: #00aaff;
+.arrow-svg {
+    width: 4px; height: 50px; background: #00aaff;
     position: absolute; bottom: 50%; left: calc(50% - 2px);
-    transform-origin: bottom center;
-    border-radius: 2px;
+    transform-origin: bottom center; border-radius: 2px;
 }
-
-.arrow::after {
+.arrow-svg::after {
     content: ''; position: absolute; top: 0; left: -6px;
     border-left: 8px solid transparent; border-right: 8px solid transparent;
-    border-bottom: 12px solid #00aaff; transform: rotate(0deg);
+    border-bottom: 12px solid #00aaff;
 }
 
-input[type=range] { width: 100%; margin: 15px 0; }
+input[type=range] { width: 100%; margin-top: 20px; }
 
 button {
     background: #0088cc; color: white; border: none;
-    padding: 12px; border-radius: 10px; width: 100%;
-    cursor: pointer; font-weight: bold;
+    padding: 14px; border-radius: 12px; width: 100%;
+    margin-top: 15px; font-weight: bold; cursor: pointer;
 }
 
-#upload-status { font-size: 12px; margin-top: 10px; }
+#log-status { font-size: 11px; margin-top: 10px; color: #00ff00; }
