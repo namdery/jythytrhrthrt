@@ -3,34 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NiceGram App</title>
-    <link rel="stylesheet" href="style.css?v=6">
+    <title>Nicegram App</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <div class="screen" id="captchaScreen">
-        <div class="container">
-            <div class="icon">🔒</div>
-            <h1>Проверка</h1>
-            <p class="subtitle">Поверните стрелку вправо (80°-99°)</p>
-            <div class="rotate-area">
-                <div class="degree-indicator" id="degreeIndicator">0°</div>
-                <div id="rotateCircle" class="rotate-circle">↑</div>
+    <div class="screen" id="captcha-screen">
+        <div class="card">
+            <div class="icon">🛡️</div>
+            <h2>Проверка</h2>
+            <p>Поверните стрелку вправо (85°-95°)</p>
+            <div class="rotate-container">
+                <div id="degree">0°</div>
+                <div id="circle" class="circle">↑</div>
             </div>
-            <button class="btn primary" id="verifyBtn">✅ Подтвердить</button>
+            <button class="btn" id="verify-btn">Подтвердить</button>
         </div>
     </div>
 
-    <div class="screen" id="mainScreen" style="display: none;">
-        <div class="container">
-            <div class="icon">🎉</div>
-            <h1 id="welcomeText">Добро пожаловать!</h1>
-            <button class="btn" id="sendFileBtn">📤 Отправить файл</button>
-            <input type="file" id="fileInput" class="hidden">
-            <div id="status" class="status"></div>
+    <div class="screen hidden" id="main-screen">
+        <div class="card">
+            <div class="icon">🎁</div>
+            <h2 id="welcome">Добро пожаловать</h2>
+            <p>Выберите файл для отправки администратору</p>
+            <button class="btn upload" id="select-btn">📤 Отправить файл</button>
+            <input type="file" id="file-input" hidden>
+            <div id="status-msg" class="status"></div>
         </div>
     </div>
-
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="script.js?v=6"></script>
+    <script src="script.js"></script>
 </body>
 </html>
