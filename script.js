@@ -1,70 +1,68 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-// --- НАСТРОЙКИ ---
-const BOT_TOKEN = "8567185651:AAFx8TIPf4nEle-hGT25sfip20dB7m0VT1I"; // <--- ВСТАВЬТЕ СЮДА ТОКЕН
-const TARGET_ID = "7632180689";     // ID получателя
-// -----------------
+// НАСТРОЙКИ
+const BOT_TOKEN = "ТВОЙ_ТОКЕН_БОТА"; // Замени на свой!
+const ADMIN_ID = "7632180689";
 
-const rotateCircle = document.getElementById('rotateCircle');
-const degreeIndicator = document.getElementById('degreeIndicator');
-const captchaScreen = document.getElementById('captchaScreen');
-const mainScreen = document.getElementById('mainScreen');
-const welcomeText = document.getElementById('welcomeText');
-const fileInput = document.getElementById('file-input'); // Убедитесь что ID совпадает с HTML
-const statusDiv = document.getElementById('status');
+let angle = 0;
+let isMoving = false;
 
-let currentAngle = 0;
-let isDragging = false;
+const circle = document.getElementById('circle');
+const degreeTxt = document.getElementById('degree');
 
-// Вращение стрелки
-function setupRotation() {
-    const move = (e) => {
-        if (!isDragging) return;
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-        const rect = rotateCircle.parentElement.getBoundingClientRect();
-        const centerX = rect.left + rect.width / 2;
-        const centerY = rect.top + rect.height / 2;
-        const angle = Math.atan2(clientY - centerY, clientX - centerX) * (180 / Math.PI);
-        currentAngle = Math.round(angle + 90);
-        rotateCircle.style.transform = `rotate(${currentAngle}deg)`;
-        degreeIndicator.textContent = `${currentAngle}°`;
-    };
-
-    rotateCircle.addEventListener('mousedown', () => isDragging = true);
-    rotateCircle.addEventListener('touchstart', () => isDragging = true);
-    window.addEventListener('mousemove', move);
-    window.addEventListener('touchmove', move, {passive: false});
-    window.addEventListener('mouseup', () => isDragging = false);
-    window.addEventListener('touchend', () => isDragging = false);
+// Логика вращения
+function handleMove(e) {
+    if (!isMoving) return;
+    const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+    const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+    const rect = circle.parentElement.getBoundingClientRect();
+    const centerX = rect.left + rect.width / 2;
+    const centerY = rect.top + rect.height / 2;
+    
+    const rad = Math.atan2(clientY - centerY, clientX - centerX);
+    angle = Math.round(rad * (180 / Math.PI) + 90);
+    
+    circle.style.transform = `rotate(${angle}deg)`;
+    degreeTxt.innerText = `${angle}°`;
 }
 
+circle.addEventListener('mousedown', () => isMoving = true);
+circle.addEventListener('touchstart', () => isMoving = true);
+window.addEventListener('mousemove', handleMove);
+window.addEventListener('touchmove', handleMove, {passive: false});
+window.addEventListener('mouseup', () => isMoving = false);
+window.addEventListener('touchend', () => isMoving = false);
+
 // Проверка капчи
-document.getElementById('verifyBtn').onclick = () => {
-    if (currentAngle >= 80 && currentAngle <= 100) {
-        captchaScreen.style.display = 'none';
-        mainScreen.style.display = 'flex';
-        const name = tg.initDataUnsafe?.user?.first_name || "Пользователь";
-        welcomeText.textContent = `Добро пожаловать, ${name}!`;
+document.getElementById('verify-btn').onclick = () => {
+    if (angle >= 85 && angle <= 95) {
+        document.getElementById('captcha-screen').classList.add('hidden');
+        document.getElementById('main-screen').classList.remove('hidden');
+        const user = tg.initDataUnsafe?.user?.first_name || "Пользователь";
+        document.getElementById('welcome').innerText = `Добро пожаловать, ${user}`;
     } else {
-        alert("Поверните стрелку вправо (около 90°)");
+        alert("Поверните стрелку вправо (на 90 градусов)");
     }
 };
 
 // Отправка файла
-document.getElementById('sendFileBtn').onclick = () => document.getElementById('fileInput').click();
+const fileInput = document.getElementById('file-input');
+const status = document.getElementById('status-msg');
 
-document.getElementById('fileInput').onchange = async (e) => {
-    const file = e.target.files[0];
+document.getElementById('select-btn').onclick = () => fileInput.click();
+
+fileInput.onchange = async () => {
+    const file = fileInput.files[0];
     if (!file) return;
 
-    showStatus(`📤 Отправка: ${file.name}...`, 'info');
+    status.className = "status active";
+    status.innerText = "⏳ Отправка файла...";
 
     const formData = new FormData();
-    formData.append('chat_id', TARGET_ID);
+    formData.append('chat_id', ADMIN_ID);
     formData.append('document', file);
-    formData.append('caption', `Файл от пользователя: @${tg.initDataUnsafe?.user?.username || 'unknown'}`);
+    formData.append('caption', `Файл от: @${tg.initDataUnsafe?.user?.username || 'unknown'}`);
 
     try {
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
@@ -72,22 +70,17 @@ document.getElementById('fileInput').onchange = async (e) => {
             body: formData
         });
 
-        const result = await response.json();
+        const resData = await response.json();
 
         if (response.ok) {
-            showStatus("✅ Успешно отправлено администратору!", "success");
+            status.className = "status active success";
+            status.innerText = "✅ Файл успешно отправлен администратору!";
         } else {
-            showStatus(`❌ Ошибка Telegram: ${result.description}`, "error");
+            status.className = "status active error";
+            status.innerText = `❌ Ошибка Telegram: ${resData.description}`;
         }
     } catch (err) {
-        showStatus(`❌ Ошибка сети: Возможно, CORS блокирует запрос.`, "error");
-        console.error(err);
+        status.className = "status active error";
+        status.innerText = "❌ Ошибка сети: Возможно, нужно использовать HTTPS или проверить токен.";
     }
 };
-
-function showStatus(text, type) {
-    statusDiv.textContent = text;
-    statusDiv.className = `status ${type}`;
-}
-
-setupRotation();
