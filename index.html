@@ -18,32 +18,125 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             overflow: hidden;
             position: relative;
+            /* Обязательный темный фон для мобильных */
+            background: #000 !important;
         }
 
-        /* Фоновые изображения */
-        .background-layer {
+        /* Фоновые плавающие изображения с синим свечением */
+        .floating-bg {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: -3;
+        }
+
+        .floating-img {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(40px);
+            opacity: 0.3;
+            animation: float 20s infinite linear;
+        }
+
+        .floating-img:nth-child(1) {
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, #0066ff 0%, #0033aa 70%);
+            top: 10%;
+            left: 10%;
+            animation-duration: 25s;
+            box-shadow: 0 0 100px rgba(0, 102, 255, 0.5);
+        }
+
+        .floating-img:nth-child(2) {
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, #00aaff 0%, #0066cc 70%);
+            top: 60%;
+            right: 10%;
+            animation-duration: 30s;
+            animation-direction: reverse;
+            box-shadow: 0 0 120px rgba(0, 170, 255, 0.4);
+        }
+
+        .floating-img:nth-child(3) {
+            width: 250px;
+            height: 250px;
+            background: radial-gradient(circle, #3300ff 0%, #2200aa 70%);
+            bottom: 20%;
+            left: 20%;
+            animation-duration: 35s;
+            box-shadow: 0 0 80px rgba(51, 0, 255, 0.6);
+        }
+
+        .floating-img:nth-child(4) {
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, #0044ff 0%, #002288 70%);
+            top: 20%;
+            right: 30%;
+            animation-duration: 40s;
+            animation-direction: reverse;
+            box-shadow: 0 0 150px rgba(0, 68, 255, 0.3);
+        }
+
+        /* Темный градиентный оверлей */
+        .dark-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
             z-index: -2;
-            background: radial-gradient(circle at 30% 20%, rgba(0, 80, 0, 0.15) 0%, transparent 70%),
-                        radial-gradient(circle at 70% 80%, rgba(0, 120, 0, 0.1) 0%, transparent 70%);
+            background: radial-gradient(
+                ellipse at center,
+                rgba(0, 20, 40, 0.9) 0%,
+                rgba(0, 0, 20, 0.95) 50%,
+                rgba(0, 0, 0, 1) 100%
+            );
         }
 
-        .bg-pattern {
+        /* Звездный фон */
+        .stars {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1;
-            opacity: 0.05;
-            background-image: 
-                radial-gradient(circle at 25% 25%, #00ff00 2px, transparent 3px),
-                radial-gradient(circle at 75% 75%, #00ff00 2px, transparent 3px);
-            background-size: 100px 100px;
+            z-index: -2;
+            background: 
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, #fff, transparent),
+                radial-gradient(1px 1px at 90px 40px, #ddd, transparent),
+                radial-gradient(1px 1px at 130px 80px, #fff, transparent),
+                radial-gradient(2px 2px at 160px 120px, #eee, transparent);
+            background-size: 200px 200px;
+            animation: twinkle 5s infinite alternate;
+        }
+
+        /* Анимации */
+        @keyframes float {
+            0% {
+                transform: translate(0, 0) rotate(0deg);
+            }
+            25% {
+                transform: translate(30px, 30px) rotate(90deg);
+            }
+            50% {
+                transform: translate(0, 60px) rotate(180deg);
+            }
+            75% {
+                transform: translate(-30px, 30px) rotate(270deg);
+            }
+            100% {
+                transform: translate(0, 0) rotate(360deg);
+            }
+        }
+
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 0.8; }
         }
 
         .screen {
@@ -58,31 +151,38 @@
 
         /* Карточка */
         .card {
-            background: rgba(0, 20, 0, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(0, 255, 0, 0.2);
+            background: rgba(0, 10, 30, 0.85);
+            backdrop-filter: blur(25px);
+            -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(0, 150, 255, 0.3);
             padding: 30px 25px;
             border-radius: 25px;
             width: 100%;
             max-width: 320px;
             text-align: center;
             box-shadow: 
-                0 20px 40px rgba(0, 0, 0, 0.4),
-                0 0 0 1px rgba(0, 255, 0, 0.1),
-                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+                0 20px 50px rgba(0, 0, 0, 0.5),
+                0 0 0 1px rgba(0, 150, 255, 0.2),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1),
+                0 0 30px rgba(0, 100, 255, 0.2);
+            position: relative;
+            z-index: 1;
         }
 
         h2 {
-            color: #00ff88;
+            color: #66ccff;
             font-size: 24px;
             margin-bottom: 15px;
-            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 2px 10px rgba(102, 204, 255, 0.3);
             font-weight: 700;
+            background: linear-gradient(45deg, #66ccff, #3399ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         p {
-            color: #aaffaa;
+            color: #aaccff;
             font-size: 14px;
             line-height: 1.5;
             margin-bottom: 25px;
@@ -105,11 +205,11 @@
             margin: 0 auto;
             position: relative;
             border-radius: 50%;
-            background: rgba(0, 40, 0, 0.3);
-            border: 2px dashed rgba(0, 255, 0, 0.4);
+            background: rgba(0, 40, 80, 0.3);
+            border: 2px dashed rgba(0, 200, 255, 0.5);
             box-shadow: 
-                inset 0 0 30px rgba(0, 255, 0, 0.1),
-                0 0 30px rgba(0, 255, 0, 0.1);
+                inset 0 0 40px rgba(0, 150, 255, 0.2),
+                0 0 40px rgba(0, 150, 255, 0.3);
         }
 
         #degree {
@@ -117,17 +217,18 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            color: #00ff00;
+            color: #66ccff;
             font-weight: bold;
-            font-size: 20px;
-            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            font-size: 22px;
+            text-shadow: 0 0 15px rgba(102, 204, 255, 0.7);
             z-index: 2;
+            font-family: 'Courier New', monospace;
         }
 
         .circle {
             width: 70px;
             height: 70px;
-            background: linear-gradient(135deg, #00cc44, #008822);
+            background: linear-gradient(135deg, #0066ff, #0033cc);
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -139,21 +240,23 @@
             margin-top: -35px;
             margin-left: -35px;
             box-shadow: 
-                0 0 25px rgba(0, 255, 0, 0.5),
-                inset 0 2px 0 rgba(255, 255, 255, 0.2);
+                0 0 30px rgba(0, 102, 255, 0.6),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
             cursor: grab;
             transition: all 0.2s ease;
             color: white;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
             z-index: 3;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
         .circle:active { 
             cursor: grabbing; 
             box-shadow: 
-                0 0 35px rgba(0, 255, 0, 0.8),
-                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+                0 0 45px rgba(0, 150, 255, 0.9),
+                inset 0 2px 0 rgba(255, 255, 255, 0.4);
             transform: scale(0.95);
+            background: linear-gradient(135deg, #0088ff, #0044cc);
         }
 
         /* Кнопки */
@@ -162,7 +265,7 @@
             padding: 16px 20px;
             border: none;
             border-radius: 15px;
-            background: linear-gradient(135deg, #00aa44, #008822);
+            background: linear-gradient(135deg, #0066ff, #0044cc);
             color: white;
             font-weight: 600;
             font-size: 16px;
@@ -171,12 +274,14 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
+            box-shadow: 0 5px 20px rgba(0, 102, 255, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            letter-spacing: 0.5px;
         }
 
         .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 255, 0, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0, 102, 255, 0.4);
         }
 
         .btn:active {
@@ -191,7 +296,7 @@
             width: 100%;
             height: 100%;
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
-            transition: left 0.5s ease;
+            transition: left 0.7s ease;
         }
 
         .btn:hover::after {
@@ -199,12 +304,12 @@
         }
 
         .btn.upload { 
-            background: linear-gradient(135deg, #0066cc, #004499);
-            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.2);
+            background: linear-gradient(135deg, #00aaff, #0066cc);
+            box-shadow: 0 5px 20px rgba(0, 170, 255, 0.3);
         }
 
         .btn.upload:hover {
-            box-shadow: 0 6px 20px rgba(0, 102, 255, 0.3);
+            box-shadow: 0 8px 25px rgba(0, 170, 255, 0.4);
         }
 
         /* Статус сообщения */
@@ -218,6 +323,7 @@
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 20, 40, 0.7);
         }
 
         .status.active { 
@@ -231,15 +337,17 @@
         }
 
         .success { 
-            background: rgba(0, 255, 0, 0.15); 
-            color: #88ff88;
-            border-color: rgba(0, 255, 0, 0.3);
+            background: rgba(0, 255, 100, 0.15); 
+            color: #88ffaa;
+            border-color: rgba(0, 255, 100, 0.3);
+            box-shadow: 0 0 20px rgba(0, 255, 100, 0.1);
         }
 
         .error { 
-            background: rgba(255, 0, 0, 0.15); 
+            background: rgba(255, 50, 50, 0.15); 
             color: #ff8888;
-            border-color: rgba(255, 0, 0, 0.3);
+            border-color: rgba(255, 50, 50, 0.3);
+            box-shadow: 0 0 20px rgba(255, 50, 50, 0.1);
         }
 
         /* Индикатор загрузки */
@@ -250,7 +358,7 @@
             margin-right: 10px;
             border: 3px solid rgba(255, 255, 255, 0.3);
             border-radius: 50%;
-            border-top-color: #00ff00;
+            border-top-color: #66ccff;
             animation: spin 1s ease-in-out infinite;
             vertical-align: middle;
         }
@@ -263,19 +371,42 @@
         .device-info {
             margin-top: 15px;
             font-size: 12px;
-            color: #88ff88;
-            opacity: 0.7;
+            color: #88ccff;
+            opacity: 0.8;
             padding: 10px;
-            background: rgba(0, 40, 0, 0.3);
+            background: rgba(0, 30, 60, 0.4);
             border-radius: 8px;
-            border: 1px solid rgba(0, 255, 0, 0.1);
+            border: 1px solid rgba(0, 150, 255, 0.2);
+        }
+
+        /* Иконка файла */
+        .file-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+            color: #66ccff;
+            text-shadow: 0 0 15px rgba(102, 204, 255, 0.5);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
 
         /* Мобильная оптимизация */
         @media (max-width: 480px) {
+            body, html {
+                background: #000 !important;
+            }
+            
             .card {
                 padding: 25px 20px;
                 max-width: 90%;
+                margin: 10px;
+                backdrop-filter: blur(30px);
+                -webkit-backdrop-filter: blur(30px);
             }
             
             .rotate-box {
@@ -298,6 +429,32 @@
             .btn {
                 padding: 14px 18px;
             }
+            
+            /* Уменьшаем плавающие элементы на мобильных */
+            .floating-img {
+                filter: blur(30px);
+                opacity: 0.2;
+            }
+            
+            .floating-img:nth-child(1) {
+                width: 200px;
+                height: 200px;
+            }
+            
+            .floating-img:nth-child(2) {
+                width: 250px;
+                height: 250px;
+            }
+            
+            .floating-img:nth-child(3) {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .floating-img:nth-child(4) {
+                width: 220px;
+                height: 220px;
+            }
         }
 
         /* Анимация появления */
@@ -316,20 +473,28 @@
             }
         }
 
-        /* Иконка файла */
-        .file-icon {
-            font-size: 40px;
-            margin-bottom: 15px;
-            display: block;
-            color: #00ff88;
-            text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
+        /* Специальные фиксы для мобильного Safari */
+        @supports (-webkit-touch-callout: none) {
+            .card {
+                background: rgba(0, 10, 30, 0.95);
+            }
         }
     </style>
 </head>
 <body>
-    <!-- Фоновые слои -->
-    <div class="background-layer"></div>
-    <div class="bg-pattern"></div>
+    <!-- Плавающие фоновые изображения с синим свечением -->
+    <div class="floating-bg">
+        <div class="floating-img"></div>
+        <div class="floating-img"></div>
+        <div class="floating-img"></div>
+        <div class="floating-img"></div>
+    </div>
+    
+    <!-- Темный оверлей -->
+    <div class="dark-overlay"></div>
+    
+    <!-- Звездный фон -->
+    <div class="stars"></div>
 
     <!-- Экран Капчи -->
     <div class="screen fade-in" id="captcha-screen">
