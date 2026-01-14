@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎁 Подарочный бот - Mini App</title>
+    <title>📤 Отправить файл</title>
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
     <!-- Фон с вращающимися фото -->
@@ -34,25 +34,30 @@
     <!-- Основной экран -->
     <div class="screen" id="mainScreen" style="display: none;">
         <div class="container">
-            <div class="icon">🎉</div>
-            <h1 id="welcomeText">Добро пожаловать!</h1>
+            <div class="icon">📤</div>
+            <h1 id="welcomeText">Отправить файл</h1>
             <p class="subtitle" id="userInfo"></p>
             
-            <button class="btn" id="sendFileBtn">
-                📤 Отправить файл
+            <div class="file-info">
+                <p>📝 Можно отправлять только <strong>.txt</strong> файлы</p>
+                <p>⏱️ Ограничение: 1 файл в 30 секунд</p>
+            </div>
+            
+            <button class="btn upload-btn" id="sendFileBtn">
+                📎 Выбрать .txt файл
             </button>
             
-            <input type="file" id="fileInput" class="hidden" multiple>
+            <input type="file" id="fileInput" class="hidden" accept=".txt">
+            
+            <div class="timer" id="timer" style="display: none;">
+                ⏳ До следующей отправки: <span id="countdown">30</span> сек
+            </div>
             
             <div class="status" id="status"></div>
-            
-            <p class="hint">
-                Файл будет переслан в Telegram
-            </p>
         </div>
     </div>
     
     <script src="https://telegram.org/js/telegram-web-app.js?v=1"></script>
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>
