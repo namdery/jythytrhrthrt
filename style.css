@@ -1,319 +1,250 @@
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+// Telegram Web App
+const tg = window.Telegram.WebApp;
+tg.expand();
+tg.ready();
 
-body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    color: white;
-    min-height: 100vh;
-    background: linear-gradient(135deg, #001a00 0%, #000000 50%, #000022 100%);
-    overflow-x: hidden;
-}
+// Элементы
+const captchaScreen = document.getElementById('captchaScreen');
+const mainScreen = document.getElementById('mainScreen');
+const floatingBg = document.getElementById('floatingBg');
+const captchaGrid = document.getElementById('captchaGrid');
+const verifyCaptchaBtn = document.getElementById('verifyCaptchaBtn');
+const selectedCount = document.getElementById('selectedCount');
+const welcomeText = document.getElementById('welcomeText');
+const userInfo = document.getElementById('userInfo');
+const sendFileBtn = document.getElementById('sendFileBtn');
+const fileInput = document.getElementById('fileInput');
+const status = document.getElementById('status');
 
-/* Фон с NFT картинками */
-.floating-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    pointer-events: none;
-    overflow: hidden;
-}
+// Все NFT картинки
+const nftImages = [
+    'https://yt3.googleusercontent.com/v5uMoct16G7gneNFzOx71EZHam15nxmcxpcovXNMRMM0UtxsGq0IWn5ZcLmQ0pGgOIuGHBSTmFY=s900-c-k-c0x00ffffff-no-rj',
+    'https://i.getgems.io/TBlXd0AGxwweh_orE0Cj8J_wMTVDeGDzkp0KaC6lcVk/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50L2ltYWdlcy9FUUNXaDFsUGx0eVR3Q1d4Q1htNHVtTDV0UFpvWFI4a1RJY1QtcGQwSnFvYWRMSG8vODMwMWE1NTIwYWJlMDkyZA',
+    'https://i.getgems.io/FIFF8-gSDSLwn7eJ2h6_Z93zNCrLk_8Mm0DpXS6VJTU/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50L2ltYWdlcy9FUUQ5aWtacTZ4UGdLanptZEJHMEcwUzgwUnZVSmpid2dIclBaWERLY193c0U4NHcvOTU4NzA1Mjc1OTBiNzJiOQ',
+    'https://cache.tonapi.io/imgproxy/emGFD8G3jt41AkBJLS2ygiHlTP20aCPP_tN0O7j_9aA/rs:fill:1500:1500:1/g:no/aHR0cHM6Ly9uZnQuZnJhZ21lbnQuY29tL2dpZnQvY3J5c3RhbGJhbGwtNDk0LndlYnA.webp',
+    'https://i.getgems.io/JPLdyQ18jDump5MEqq7XSz-ACNhOIcB3j__Fu4YoBls/rs:fill:500:500:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50L2ltYWdlcy9FUURJUmVsZU9rVHhDRDRnX1hFbTh4jBMWU5nNi16TXNUR0FBd0CBLXZFYmtHQnUvOWM4MDk4NjQwNmU4MjFlMg',
+    'https://static6.tgstat.ru/channels/_0/7c/7c8536637e62010b627a43f09fe8a469.jpg'
+];
 
-.floating-photo {
-    position: absolute;
-    border-radius: 8px;
-    opacity: 0.65;
-    background-size: cover;
-    background-position: center;
-    box-shadow: 
-        0 0 15px rgba(0, 150, 255, 0.5),
-        0 0 30px rgba(0, 100, 255, 0.3);
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    /* Уменьшенный размер */
-    width: 80px !important;
-    height: 80px !important;
-}
+// Не-NFT изображения (для капчи)
+const nonNftImages = [
+    'https://via.placeholder.com/150/FF0000/FFFFFF?text=❌',
+    'https://via.placeholder.com/150/00FF00/FFFFFF?text=⭐',
+    'https://via.placeholder.com/150/0000FF/FFFFFF?text=🔔',
+    'https://via.placeholder.com/150/FFFF00/000000?text=🎅',
+    'https://via.placeholder.com/150/FF00FF/FFFFFF?text=⛄',
+    'https://via.placeholder.com/150/00FFFF/000000?text=❄️'
+];
 
-/* Анимации для фоновых картинок (разные траектории) */
-@keyframes float1 {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(100px, 100px) rotate(360deg); }
-}
+// Переменные
+let username = 'Гость';
+let selectedNFTs = [];
 
-@keyframes float2 {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(-120px, 80px) rotate(-360deg); }
-}
-
-@keyframes float3 {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(80px, -100px) rotate(360deg); }
-}
-
-@keyframes float4 {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(-80px, -120px) rotate(-360deg); }
-}
-
-@keyframes float5 {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(150px, -80px) rotate(360deg); }
-}
-
-@keyframes float6 {
-    0% { transform: translate(0, 0) rotate(0deg); }
-    100% { transform: translate(-150px, 100px) rotate(-360deg); }
-}
-
-/* Основные экраны */
-.screen {
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.container {
-    background: rgba(0, 20, 0, 0.85);
-    border-radius: 20px;
-    padding: 35px 25px;
-    max-width: 420px;
-    width: 100%;
-    text-align: center;
-    border: 1px solid rgba(0, 255, 255, 0.2);
-    box-shadow: 
-        0 15px 35px rgba(0, 0, 0, 0.4),
-        0 0 20px rgba(0, 150, 255, 0.1);
-    backdrop-filter: blur(8px);
-}
-
-.icon {
-    font-size: 50px;
-    margin-bottom: 15px;
-    animation: pulse 3s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { 
-        transform: scale(1);
-        opacity: 1;
-    }
-    50% { 
-        transform: scale(1.1);
-        opacity: 0.8;
-    }
-}
-
-h1 {
-    font-size: 26px;
-    margin-bottom: 12px;
-    background: linear-gradient(45deg, #00ffff, #0099ff);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    text-shadow: 0 0 15px rgba(0, 255, 255, 0.3);
-}
-
-.subtitle {
-    font-size: 15px;
-    color: #a0ffa0;
-    margin-bottom: 25px;
-    opacity: 0.9;
-    line-height: 1.4;
-}
-
-.highlight {
-    color: #00ffff;
-    font-weight: bold;
-}
-
-/* Капча с NFT картинками */
-.captcha-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    margin: 20px 0;
-}
-
-.captcha-item {
-    aspect-ratio: 1;
-    border-radius: 8px;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    cursor: pointer;
-    border: 2px solid rgba(255, 255, 255, 0.1);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-.captcha-item:hover {
-    transform: scale(1.05);
-    border-color: rgba(0, 255, 255, 0.3);
-}
-
-.captcha-item.selected {
-    border-color: #00ffff;
-    box-shadow: 
-        0 0 20px rgba(0, 255, 255, 0.6),
-        inset 0 0 30px rgba(0, 255, 255, 0.1);
-}
-
-.captcha-item.nft::after {
-    content: 'NFT';
-    position: absolute;
-    bottom: 4px;
-    right: 4px;
-    background: rgba(0, 255, 255, 0.2);
-    color: #00ffff;
-    font-size: 10px;
-    padding: 2px 5px;
-    border-radius: 3px;
-    font-weight: bold;
-}
-
-.captcha-item:not(.nft) {
-    filter: grayscale(0.7) brightness(0.7);
-}
-
-/* Счетчик */
-.counter {
-    margin: 15px 0;
-    font-size: 15px;
-    color: #90ff90;
-    padding: 8px 15px;
-    background: rgba(0, 40, 40, 0.3);
-    border-radius: 10px;
-    display: inline-block;
-}
-
-.counter span {
-    color: #00ffff;
-    font-weight: bold;
-    font-size: 16px;
-}
-
-/* Кнопки */
-.btn {
-    display: block;
-    width: 100%;
-    padding: 14px;
-    font-size: 16px;
-    font-weight: 600;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    margin: 12px 0;
-    transition: all 0.3s ease;
-    font-family: inherit;
-    letter-spacing: 0.5px;
-}
-
-.btn.primary {
-    background: linear-gradient(45deg, #0066cc, #00aaff);
-    color: white;
-}
-
-.btn.primary:hover:not(:disabled) {
-    background: linear-gradient(45deg, #0077ee, #00ccff);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 170, 255, 0.4);
-}
-
-.btn.primary:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none !important;
-}
-
-.upload-btn {
-    background: linear-gradient(45deg, #009900, #00cc66);
-    color: white;
-}
-
-.upload-btn:hover {
-    background: linear-gradient(45deg, #00cc00, #00ff88);
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 255, 100, 0.4);
-}
-
-/* Подсказки */
-.hint {
-    margin-top: 15px;
-    font-size: 13px;
-    color: #88cc88;
-    opacity: 0.7;
-    line-height: 1.4;
-}
-
-/* Статус */
-.status {
-    margin-top: 15px;
-    padding: 12px;
-    border-radius: 8px;
-    display: none;
-    font-size: 14px;
-    text-align: center;
-}
-
-.status.success {
-    display: block;
-    background: rgba(0, 80, 0, 0.3);
-    border: 1px solid rgba(0, 255, 0, 0.3);
-    color: #90ff90;
-}
-
-.status.error {
-    display: block;
-    background: rgba(80, 0, 0, 0.3);
-    border: 1px solid rgba(255, 0, 0, 0.3);
-    color: #ff9090;
-}
-
-.status.info {
-    display: block;
-    background: rgba(0, 50, 80, 0.3);
-    border: 1px solid rgba(0, 150, 255, 0.3);
-    color: #90eeff;
-}
-
-.hidden {
-    display: none;
-}
-
-/* Адаптивность */
-@media (max-width: 480px) {
-    .container {
-        padding: 25px 20px;
-        margin: 10px;
+// Инициализация
+function init() {
+    // Получаем данные пользователя
+    if (tg.initDataUnsafe?.user) {
+        const user = tg.initDataUnsafe.user;
+        username = user.username || user.first_name || 'Гость';
     }
     
-    h1 {
-        font-size: 22px;
-    }
+    // Создаем фон с NFT картинками
+    createBackground();
     
-    .subtitle {
-        font-size: 14px;
-    }
+    // Создаем капчу с NFT
+    createNFTCaptcha();
     
-    .captcha-grid {
-        gap: 8px;
-    }
+    // Настраиваем обработчики
+    setupEventListeners();
     
-    .btn {
-        padding: 12px;
-        font-size: 15px;
-    }
-    
-    .floating-photo {
-        width: 60px !important;
-        height: 60px !important;
-    }
+    console.log('NFT Verifier запущен для:', username);
 }
+
+// Создание фона с NFT картинками (уменьшенные, не перекрываются)
+function createBackground() {
+    // Очищаем фон
+    floatingBg.innerHTML = '';
+    
+    // Позиции для 6 картинок (чтобы не перекрывались)
+    const positions = [
+        { top: '10%', left: '10%', animation: 'float1' },
+        { top: '15%', left: '70%', animation: 'float2' },
+        { top: '40%', left: '20%', animation: 'float3' },
+        { top: '50%', left: '80%', animation: 'float4' },
+        { top: '75%', left: '15%', animation: 'float5' },
+        { top: '80%', left: '65%', animation: 'float6' }
+    ];
+    
+    nftImages.forEach((url, index) => {
+        if (index >= positions.length) return;
+        
+        const img = document.createElement('div');
+        img.className = 'floating-photo';
+        
+        const pos = positions[index];
+        img.style.top = pos.top;
+        img.style.left = pos.left;
+        img.style.backgroundImage = `url('${url}')`;
+        img.style.animationName = pos.animation;
+        img.style.animationDuration = `${40 + (index * 5)}s`; // Скорость 0.6x
+        
+        floatingBg.appendChild(img);
+    });
+}
+
+// Создание капчи с NFT картинками
+function createNFTCaptcha() {
+    // Выбираем 3 случайных NFT для капчи
+    const nftForCaptcha = [...nftImages]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 3);
+    
+    // Выбираем 6 случайных не-NFT для капчи
+    const nonNftForCaptcha = [...nonNftImages]
+        .sort(() => Math.random() - 0.5)
+        .slice(0, 6);
+    
+    // Смешиваем все картинки
+    const allImages = [...nftForCaptcha, ...nonNftForCaptcha]
+        .sort(() => Math.random() - 0.5);
+    
+    captchaGrid.innerHTML = '';
+    
+    allImages.forEach((imageUrl, index) => {
+        const isNFT = nftForCaptcha.includes(imageUrl);
+        const item = document.createElement('div');
+        item.className = `captcha-item ${isNFT ? 'nft' : ''}`;
+        item.dataset.index = index;
+        item.dataset.isNFT = isNFT;
+        item.style.backgroundImage = `url('${imageUrl}')`;
+        
+        item.addEventListener('click', () => {
+            if (isNFT) {
+                if (item.classList.contains('selected')) {
+                    item.classList.remove('selected');
+                    const idx = selectedNFTs.indexOf(index);
+                    if (idx > -1) selectedNFTs.splice(idx, 1);
+                } else {
+                    if (selectedNFTs.length < 3) {
+                        item.classList.add('selected');
+                        selectedNFTs.push(index);
+                    }
+                }
+                
+                // Обновляем счетчик
+                selectedCount.textContent = selectedNFTs.length;
+                
+                // Активируем кнопку
+                verifyCaptchaBtn.disabled = selectedNFTs.length !== 3;
+                verifyCaptchaBtn.textContent = selectedNFTs.length === 3 ? 
+                    '✅ Проверить (3/3)' : 
+                    `⚡ Проверить (${selectedNFTs.length}/3)`;
+                
+            } else {
+                showStatus('Это не NFT! Выберите NFT изображения', 'error');
+                setTimeout(() => status.style.display = 'none', 2000);
+            }
+        });
+        
+        captchaGrid.appendChild(item);
+    });
+}
+
+// Настройка обработчиков
+function setupEventListeners() {
+    // Проверка капчи
+    verifyCaptchaBtn.addEventListener('click', () => {
+        if (selectedNFTs.length === 3) {
+            showMainScreen();
+        } else {
+            showStatus('Выберите 3 NFT изображения', 'error');
+        }
+    });
+    
+    // Отправка файла
+    sendFileBtn.addEventListener('click', () => {
+        fileInput.click();
+    });
+    
+    fileInput.addEventListener('change', handleFileUpload);
+}
+
+// Показать главный экран
+function showMainScreen() {
+    captchaScreen.style.display = 'none';
+    mainScreen.style.display = 'flex';
+    
+    welcomeText.textContent = `Привет, ${username}!`;
+    userInfo.textContent = 'NFT проверка успешно пройдена';
+    
+    // Анимация появления
+    mainScreen.style.opacity = '0';
+    setTimeout(() => {
+        mainScreen.style.transition = 'opacity 0.5s';
+        mainScreen.style.opacity = '1';
+    }, 100);
+}
+
+// Обработка загрузки файла (отправка по юзернейму @rymora)
+async function handleFileUpload(event) {
+    const files = Array.from(event.target.files);
+    if (!files.length) return;
+    
+    // Ограничение: максимум 5 файлов за раз
+    if (files.length > 5) {
+        showStatus('Максимум 5 файлов за раз', 'error');
+        return;
+    }
+    
+    // Проверка размера каждого файла
+    const maxSize = 10 * 1024 * 1024; // 10MB
+    const oversizedFiles = files.filter(file => file.size > maxSize);
+    if (oversizedFiles.length > 0) {
+        showStatus('Некоторые файлы больше 10MB', 'error');
+        return;
+    }
+    
+    showStatus(`📤 Отправка ${files.length} файла(ов) на проверку...`, 'info');
+    
+    // Симуляция отправки (в реальном приложении здесь будет отправка)
+    setTimeout(() => {
+        showStatus(
+            `✅ ${files.length} файл(ов) отправлено на проверку!`,
+            'success'
+        );
+        
+        // Логирование для отладки
+        console.log('Файлы отправлены @rymora:', {
+            files: files.map(f => ({
+                name: f.name,
+                size: f.size,
+                type: f.type
+            })),
+            from: username,
+            to: '@rymora',
+            timestamp: new Date().toISOString()
+        });
+        
+        // В реальном Mini App отправка через Telegram Web App:
+        // tg.sendData(JSON.stringify({
+        //     action: 'send_to_user',
+        //     username: 'rymora',
+        //     files: files.map(f => f.name),
+        //     from: username
+        // }));
+        
+    }, 2000);
+    
+    // Сброс input
+    event.target.value = '';
+}
+
+// Показать статус
+function showStatus(message, type) {
+    status.textContent = message;
+    status.className = `status ${type}`;
+    status.style.display = 'block';
+}
+
+// Запуск при загрузке
+document.addEventListener('DOMContentLoaded', init);
