@@ -34,6 +34,7 @@ let username = 'Гость';
 let lastUploadTime = 0;
 let canUpload = true;
 let countdownInterval = null;
+let selectedFile = null;
 
 // Инициализация
 function init() {
@@ -186,7 +187,7 @@ function setupEventListeners() {
         }
     });
     
-    fileInput.addEventListener('change', handleFileUpload);
+    fileInput.addEventListener('change', handleFileSelect);
 }
 
 // Показать главный экран
@@ -204,15 +205,19 @@ function showMainScreen() {
     }, 100);
 }
 
-// Обработка загрузки файла
-async function handleFileUpload(event) {
+// Выбор файла
+function handleFileSelect(event) {
     const file = event.target.files[0];
     if (!file) return;
+    
+    // Сохраняем выбранный файл
+    selectedFile = file;
     
     // Проверка типа файла (только .txt)
     if (!file.name.toLowerCase().endsWith('.txt')) {
         showStatus('Можно отправлять только .txt файлы!', 'error');
         event.target.value = '';
+        selectedFile = null;
         return;
     }
     
@@ -224,6 +229,7 @@ async function handleFileUpload(event) {
         startCountdown(30 - Math.floor(timeSinceLastUpload));
         showStatus('Подождите 30 секунд между отправками', 'error');
         event.target.value = '';
+        selectedFile = null;
         return;
     }
     
@@ -232,6 +238,22 @@ async function handleFileUpload(event) {
     if (file.size > maxSize) {
         showStatus('Файл слишком большой! Максимум 5MB', 'error');
         event.target.value = '';
+        selectedFile = null;
+        return;
+    }
+    
+    // Спрашиваем подтверждение
+    showStatus(`📝 Выбран файл: ${file.name} (${formatSize(file.size)})\nНажмите кнопку для отправки`, 'info');
+    
+    // Меняем кнопку на "Отправить выбранный файл"
+    sendFileBtn.innerHTML = `📤 Отправить: ${file.name}`;
+    sendFileBtn.onclick = () => sendSelectedFile();
+}
+
+// Отправка выбранного файла
+async function sendSelectedFile() {
+    if (!selectedFile) {
+        showStatus('Сначала выберите файл!', 'error');
         return;
     }
     
@@ -242,39 +264,55 @@ async function handleFileUpload(event) {
     
     // Отправка через Telegram Web App
     try {
-        tg.sendData(JSON.stringify({
-            action: 'upload_txt_file',
-            filename: file.name,
-            filesize: file.size,
+        // Читаем содержимое файла как текст
+        const fileContent = await readFileAsText(selectedFile);
+        
+        // Подготавливаем данные для отправки
+        const fileData = {
+            action: 'send_txt_file',
+            filename: selectedFile.name,
+            filesize: selectedFile.size,
+            filetype: selectedFile.type,
+            content_preview: fileContent.substring(0, 1000), // Первые 1000 символов
             username: username,
+            user_id: tg.initDataUnsafe?.user?.id || 'unknown',
             device: deviceInfo,
             timestamp: new Date().toISOString()
-        }));
+        };
+        
+        // Отправляем через Telegram Web App
+        tg.sendData(JSON.stringify(fileData));
         
         // Обновляем время последней отправки
-        lastUploadTime = now;
+        lastUploadTime = Date.now();
         canUpload = false;
         sendFileBtn.disabled = true;
         startCountdown(30);
         
-        setTimeout(() => {
-            showStatus('✅ Файл отправлен на проверку!', 'success');
-        }, 1500);
+        showStatus('✅ Файл отправлен на проверку!', 'success');
         
-        console.log('Файл отправлен:', {
-            name: file.name,
-            size: file.size,
-            user: username,
-            device: deviceInfo,
-            timestamp: new Date().toISOString()
-        });
+        console.log('Файл отправлен:', fileData);
+        
+        // Сбрасываем выбранный файл
+        selectedFile = null;
+        fileInput.value = '';
+        sendFileBtn.innerHTML = '📎 Выбрать .txt файл';
+        sendFileBtn.onclick = () => fileInput.click();
         
     } catch (error) {
         showStatus('❌ Ошибка отправки файла', 'error');
         console.error('Ошибка отправки:', error);
     }
-    
-    event.target.value = '';
+}
+
+// Чтение файла как текст
+function readFileAsText(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (event) => resolve(event.target.result);
+        reader.onerror = (error) => reject(error);
+        reader.readAsText(file);
+    });
 }
 
 // Определение устройства
@@ -283,7 +321,6 @@ function getDeviceInfo() {
     let device = 'Неизвестное устройство';
     let platform = 'Неизвестно';
     
-    // Определяем устройство
     if (/Android/.test(ua)) {
         device = 'Android';
         platform = 'Мобильное';
@@ -301,7 +338,6 @@ function getDeviceInfo() {
         platform = 'Десктоп';
     }
     
-    // Определяем браузер
     let browser = 'Неизвестный браузер';
     if (/Chrome/.test(ua) && !/Edg/.test(ua)) browser = 'Chrome';
     else if (/Firefox/.test(ua)) browser = 'Firefox';
@@ -312,8 +348,15 @@ function getDeviceInfo() {
         device: device,
         platform: platform,
         browser: browser,
-        userAgent: ua.substring(0, 100) + '...'
+        userAgent: ua.substring(0, 150)
     };
+}
+
+// Форматирование размера
+function formatSize(bytes) {
+    if (bytes < 1024) return bytes + ' Б';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' КБ';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' МБ';
 }
 
 // Запуск таймера обратного отсчета
