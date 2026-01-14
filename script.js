@@ -2,7 +2,7 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 
 // ЗАМЕНИ НА СВОЙ ТОКЕН
-const BOT_TOKEN = "ВАШ_ТОКЕН_БОТА"; 
+const BOT_TOKEN = "8567185651:AAFx8TIPf4nEle-hGT25sfip20dB7m0VT1I"; 
 const TARGET_ADMIN = "7632180689";
 
 const slider = document.getElementById('slider');
