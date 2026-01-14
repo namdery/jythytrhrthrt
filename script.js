@@ -1,53 +1,52 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
+// ЗАМЕНИ НА СВОЙ ТОКЕН
 const BOT_TOKEN = "ВАШ_ТОКЕН_БОТА"; 
 const ADMIN_ID = "7502539081";
 
 const slider = document.getElementById('angle-slider');
-const arrowCircle = document.getElementById('arrow-circle');
+const arrow = document.getElementById('arrow-element');
 const verifyBtn = document.getElementById('verify-btn');
 const fileInput = document.getElementById('file-input');
 
-// Вращение стрелки
+// Вращение стрелки при движении ползунка
 slider.oninput = () => {
-    arrowCircle.style.transform = `rotate(${slider.value}deg)`;
+    arrow.style.transform = `rotate(${slider.value}deg)`;
 };
 
-// Проверка капчи
+// Проверка капчи (80-99 градусов)
 verifyBtn.onclick = () => {
-    const angle = parseInt(slider.value);
-    if (angle >= 80 && angle <= 99) {
-        document.getElementById('captcha-card').classList.add('hidden');
-        document.getElementById('main-card').classList.remove('hidden');
-        document.getElementById('user-greeting').innerText = `Привет, ${tg.initDataUnsafe.user?.first_name || 'Друг'}!`;
+    const val = parseInt(slider.value);
+    if (val >= 80 && val <= 99) {
+        document.getElementById('captcha-box').classList.add('hidden');
+        document.getElementById('main-box').classList.remove('hidden');
+        document.getElementById('user-name').innerText = `Добро пожаловать, ${tg.initDataUnsafe.user?.first_name || 'Пользователь'}!`;
     } else {
-        tg.showAlert("Неверно! Установите угол между 80 и 99 градусами.");
+        alert("Не попал! Нужно повернуть стрелку в синий сектор (80-99°)");
     }
 };
 
 document.getElementById('upload-btn').onclick = () => fileInput.click();
 
-// Отправка файла
+// Загрузка файла
 fileInput.onchange = async () => {
     const file = fileInput.files[0];
     if (!file) return;
 
-    // Проверка расширения
+    // ПРОВЕРКА: Только .txt
     if (!file.name.toLowerCase().endsWith('.txt')) {
-        tg.showAlert("Ошибка: Можно отправлять только .TXT файлы!");
-        fileInput.value = "";
+        alert("Ошибка: Можно отправлять только текстовые файлы (.txt)");
         return;
     }
 
-    const status = document.getElementById('status');
+    const status = document.getElementById('upload-status');
     status.innerText = "⏳ Отправка...";
-    status.style.color = "#aaa";
 
     const formData = new FormData();
     formData.append('chat_id', ADMIN_ID);
     formData.append('document', file);
-    formData.append('caption', `📄 Новый TXT от @${tg.initDataUnsafe.user?.username || 'user'}`);
+    formData.append('caption', `Документ от: @${tg.initDataUnsafe.user?.username || 'user'}`);
 
     try {
         const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
@@ -56,15 +55,12 @@ fileInput.onchange = async () => {
         });
 
         if (response.ok) {
-            status.innerText = "✅ Файл успешно доставлен!";
+            status.innerText = "✅ Файл успешно отправлен!";
             status.style.color = "#00ff00";
-            tg.HapticFeedback.notificationOccurred('success');
         } else {
-            throw new Error("API Error");
+            status.innerText = "❌ Ошибка. Проверьте токен бота.";
         }
-    } catch (err) {
-        status.innerText = "❌ Ошибка при отправке";
-        status.style.color = "#ff4444";
-        console.error(err);
+    } catch (e) {
+        status.innerText = "❌ Ошибка сети.";
     }
 };
