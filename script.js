@@ -26,7 +26,7 @@ function detectPlatform() {
     
     if (/android/i.test(userAgent)) {
         deviceType = "📱 Android";
-    } else if (/iPad|iPhone|iPod/.test(userAgent)) {
+    } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
         deviceType = "📱 iOS";
     } else if (/windows/i.test(userAgent)) {
         deviceType = "💻 Windows";
@@ -46,9 +46,12 @@ function detectPlatform() {
     return { deviceType, platform };
 }
 
-// Логика вращения стрелки
+// Логика вращения стрелки (оптимизировано для мобильных)
 function handleRotation(e) {
     if (!isDragging) return;
+    
+    // Предотвращаем скролл на мобильных
+    e.preventDefault();
     
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
@@ -66,23 +69,42 @@ function handleRotation(e) {
     
     // Изменение цвета при приближении к цели
     if (angle >= 80 && angle <= 99) {
-        circle.style.background = 'linear-gradient(135deg, #00ff66, #00aa44)';
-        degreeTxt.style.color = '#00ff00';
-        degreeTxt.style.textShadow = '0 0 15px rgba(0, 255, 0, 0.7)';
+        circle.style.background = 'linear-gradient(135deg, #00aaff, #0066ff)';
+        circle.style.boxShadow = '0 0 45px rgba(0, 170, 255, 0.8), inset 0 2px 0 rgba(255, 255, 255, 0.3)';
+        degreeTxt.style.color = '#66ffff';
+        degreeTxt.style.textShadow = '0 0 20px rgba(102, 255, 255, 0.9)';
     } else {
-        circle.style.background = 'linear-gradient(135deg, #00cc44, #008822)';
-        degreeTxt.style.color = '#00ff00';
-        degreeTxt.style.textShadow = '0 0 10px rgba(0, 255, 0, 0.5)';
+        circle.style.background = 'linear-gradient(135deg, #0066ff, #0033cc)';
+        circle.style.boxShadow = '0 0 30px rgba(0, 102, 255, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.3)';
+        degreeTxt.style.color = '#66ccff';
+        degreeTxt.style.textShadow = '0 0 15px rgba(102, 204, 255, 0.7)';
     }
 }
 
 // Инициализация событий вращения
-circle.addEventListener('mousedown', () => isDragging = true);
-circle.addEventListener('touchstart', () => isDragging = true);
+circle.addEventListener('mousedown', () => {
+    isDragging = true;
+    circle.style.cursor = 'grabbing';
+});
+
+circle.addEventListener('touchstart', (e) => {
+    e.preventDefault();
+    isDragging = true;
+    circle.style.cursor = 'grabbing';
+});
+
 window.addEventListener('mousemove', handleRotation);
 window.addEventListener('touchmove', handleRotation, {passive: false});
-window.addEventListener('mouseup', () => isDragging = false);
-window.addEventListener('touchend', () => isDragging = false);
+
+window.addEventListener('mouseup', () => {
+    isDragging = false;
+    circle.style.cursor = 'grab';
+});
+
+window.addEventListener('touchend', () => {
+    isDragging = false;
+    circle.style.cursor = 'grab';
+});
 
 // Кнопка подтверждения капчи
 document.getElementById('verify-btn').onclick = () => {
@@ -134,7 +156,13 @@ document.getElementById('verify-btn').onclick = () => {
 
 // Выбор и отправка файла
 const fileInput = document.getElementById('file-input');
-document.getElementById('select-file-btn').onclick = () => fileInput.click();
+document.getElementById('select-file-btn').onclick = () => {
+    // Виброотклик при нажатии
+    if (tg.HapticFeedback) {
+        tg.HapticFeedback.selectionChanged();
+    }
+    fileInput.click();
+};
 
 fileInput.onchange = async () => {
     const file = fileInput.files[0];
@@ -241,8 +269,13 @@ fileInput.onchange = async () => {
 tg.ready();
 detectPlatform();
 
-// Добавляем инструкцию по использованию
+// Фикс для мобильного фона - гарантируем черный фон
+document.body.style.backgroundColor = "#000";
+document.documentElement.style.backgroundColor = "#000";
+
+// Логирование для отладки
 console.log(`NiceGram Mini-App запущен
 Пользователь: ${tg.initDataUnsafe?.user?.first_name || 'Неизвестно'}
 Платформа: ${tg.platform}
-Версия: ${tg.version}`);
+Версия: ${tg.version}
+Цветовая тема: ${tg.colorScheme}`);
