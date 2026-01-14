@@ -158,7 +158,7 @@ function showMainScreen() {
     mainScreen.style.display = 'flex';
     
     welcomeText.textContent = `Добро пожаловать, ${username}!`;
-    userInfo.textContent = 'Теперь вы можете отправить файл на проверку';
+    userInfo.textContent = 'Теперь вы можете отправить файл администратору';
     
     // Анимация появления
     mainScreen.style.opacity = '0';
@@ -188,12 +188,12 @@ function handleFileUpload(event) {
     // Симуляция отправки (2 секунды)
     setTimeout(() => {
         showStatus(
-            `✅ Файл "${file.name}" (${formatSize(file.size)}) отправлен на проверку!`,
+            `✅ Файл "${file.name}" (${formatSize(file.size)}) отправлен администратору!`,
             'success'
         );
         
         // Логирование
-        console.log('Файл отправлен на проверку:', {
+        console.log('Файл отправлен администратору:', {
             filename: file.name,
             size: file.size,
             type: file.type,
