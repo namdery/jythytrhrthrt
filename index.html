@@ -21,40 +21,42 @@
             background: radial-gradient(circle, #002200 0%, #000000 100%);
         }
 
-        /* Фоновые изображения */
-        .floating-bg {
+        /* Плавающие фоновые картинки */
+        .floating-images {
             position: fixed;
             width: 100%;
             height: 100%;
-            overflow: hidden;
             z-index: -1;
-            opacity: 0.1;
+            pointer-events: none;
         }
 
         .floating-img {
             position: absolute;
+            width: 80px;
+            height: 80px;
             border-radius: 10px;
             object-fit: cover;
-            filter: brightness(0.7) sepia(1) hue-rotate(180deg) saturate(2);
-            box-shadow: 0 0 40px rgba(0, 150, 255, 0.5);
-            animation: float 25s infinite linear;
+            filter: brightness(0.8) sepia(1) hue-rotate(180deg) saturate(2);
+            box-shadow: 0 0 30px rgba(0, 150, 255, 0.7);
+            opacity: 0.15;
+            animation: floatImage 25s infinite linear;
         }
 
-        @keyframes float {
+        @keyframes floatImage {
             0% {
                 transform: translate(0, 0) rotate(0deg);
             }
             25% {
-                transform: translate(30px, 20px) rotate(5deg);
+                transform: translate(50px, 30px) rotate(90deg);
             }
             50% {
-                transform: translate(10px, 40px) rotate(0deg);
+                transform: translate(20px, 60px) rotate(180deg);
             }
             75% {
-                transform: translate(-20px, 20px) rotate(-5deg);
+                transform: translate(-30px, 30px) rotate(270deg);
             }
             100% {
-                transform: translate(0, 0) rotate(0deg);
+                transform: translate(0, 0) rotate(360deg);
             }
         }
 
@@ -98,10 +100,16 @@
         }
 
         /* Круг с капчей */
-        .rotate-box {
-            width: 200px;
-            height: 200px;
+        .rotate-container {
+            position: relative;
+            width: 220px;
+            height: 220px;
             margin: 20px auto;
+        }
+
+        .rotate-box {
+            width: 100%;
+            height: 100%;
             position: relative;
             border: 2px dashed #005500;
             border-radius: 50%;
@@ -109,7 +117,7 @@
             touch-action: none;
         }
 
-        /* Циферблат */
+        /* Циферблат до 180° */
         .degree-marks {
             position: absolute;
             width: 100%;
@@ -132,9 +140,10 @@
         .degree-mark.target {
             color: #ff5555 !important;
             font-size: 12px;
-            text-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+            font-weight: bold;
         }
 
+        /* Текущий угол */
         #degree {
             position: absolute;
             top: 50%;
@@ -148,6 +157,7 @@
             border-radius: 20px;
             border: 1px solid #00aa00;
             z-index: 5;
+            min-width: 60px;
         }
 
         /* Стрелка */
@@ -167,7 +177,7 @@
             margin-left: -30px;
             box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
             cursor: grab;
-            transition: box-shadow 0.2s;
+            transition: all 0.2s;
             color: white;
             z-index: 10;
             border: 2px solid #00aa00;
@@ -253,9 +263,9 @@
 
         /* Мобильная адаптация */
         @media (max-width: 480px) {
-            .rotate-box {
-                width: 180px;
-                height: 180px;
+            .rotate-container {
+                width: 200px;
+                height: 200px;
             }
             
             .circle {
@@ -276,8 +286,8 @@
             }
             
             .floating-img {
-                width: 70px !important;
-                height: 70px !important;
+                width: 60px !important;
+                height: 60px !important;
             }
         }
 
@@ -290,8 +300,8 @@
     </style>
 </head>
 <body>
-    <!-- Фоновые изображения -->
-    <div class="floating-bg" id="floating-bg"></div>
+    <!-- Плавающие фоновые картинки -->
+    <div class="floating-images" id="floating-images"></div>
 
     <!-- Экран Капчи -->
     <div class="screen" id="captcha-screen">
@@ -299,10 +309,12 @@
             <h2>🔒 Проверка безопасности</h2>
             <p>Поверните стрелку в указанный диапазон</p>
             
-            <div class="rotate-box">
-                <div class="degree-marks" id="degree-marks"></div>
-                <div id="degree">0°</div>
-                <div id="circle" class="circle">↑</div>
+            <div class="rotate-container">
+                <div class="rotate-box">
+                    <div class="degree-marks" id="degree-marks"></div>
+                    <div id="degree">0°</div>
+                    <div id="circle" class="circle">↑</div>
+                </div>
             </div>
             
             <div class="target-hint" id="target-hint">
