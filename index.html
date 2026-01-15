@@ -18,46 +18,32 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             overflow: hidden;
             position: relative;
-            background: radial-gradient(circle, #002200 0%, #000000 100%);
         }
 
-        /* Плавающие фоновые картинки */
-        .floating-images {
+        /* Фоновые изображения */
+        .background-layer {
             position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: radial-gradient(circle at 30% 20%, rgba(0, 80, 0, 0.15) 0%, transparent 70%),
+                        radial-gradient(circle at 70% 80%, rgba(0, 120, 0, 0.1) 0%, transparent 70%);
+        }
+
+        .bg-pattern {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             z-index: -1;
-            pointer-events: none;
-        }
-
-        .floating-img {
-            position: absolute;
-            width: 80px;
-            height: 80px;
-            border-radius: 10px;
-            object-fit: cover;
-            filter: brightness(0.8) sepia(1) hue-rotate(180deg) saturate(2);
-            box-shadow: 0 0 30px rgba(0, 150, 255, 0.7);
-            opacity: 0.15;
-            animation: floatImage 25s infinite linear;
-        }
-
-        @keyframes floatImage {
-            0% {
-                transform: translate(0, 0) rotate(0deg);
-            }
-            25% {
-                transform: translate(50px, 30px) rotate(90deg);
-            }
-            50% {
-                transform: translate(20px, 60px) rotate(180deg);
-            }
-            75% {
-                transform: translate(-30px, 30px) rotate(270deg);
-            }
-            100% {
-                transform: translate(0, 0) rotate(360deg);
-            }
+            opacity: 0.05;
+            background-image: 
+                radial-gradient(circle at 25% 25%, #00ff00 2px, transparent 3px),
+                radial-gradient(circle at 75% 75%, #00ff00 2px, transparent 3px);
+            background-size: 100px 100px;
         }
 
         .screen {
@@ -67,83 +53,65 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
         }
 
+        /* Карточка */
         .card {
-            background: rgba(0, 0, 0, 0.85);
-            border: 1px solid #004d00;
-            padding: 30px;
+            background: rgba(0, 20, 0, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            padding: 30px 25px;
             border-radius: 25px;
             width: 100%;
             max-width: 320px;
             text-align: center;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
-            position: relative;
-            z-index: 2;
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(0, 255, 0, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        }
+
+        h2 {
+            color: #00ff88;
+            font-size: 24px;
+            margin-bottom: 15px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            font-weight: 700;
+        }
+
+        p {
+            color: #aaffaa;
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 25px;
+            opacity: 0.9;
         }
 
         .hidden { 
             display: none !important; 
         }
 
-        h2 {
-            color: #00ff00;
-            margin-bottom: 15px;
-            font-size: 24px;
-        }
-
-        p {
-            color: #aaffaa;
-            margin-bottom: 25px;
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        /* Круг с капчей */
+        /* Вращающийся элемент */
         .rotate-container {
+            margin: 30px auto;
             position: relative;
-            width: 220px;
-            height: 220px;
-            margin: 20px auto;
         }
 
         .rotate-box {
-            width: 100%;
-            height: 100%;
+            width: 200px;
+            height: 200px;
+            margin: 0 auto;
             position: relative;
-            border: 2px dashed #005500;
             border-radius: 50%;
-            background: rgba(0, 30, 0, 0.3);
-            touch-action: none;
+            background: rgba(0, 40, 0, 0.3);
+            border: 2px dashed rgba(0, 255, 0, 0.4);
+            box-shadow: 
+                inset 0 0 30px rgba(0, 255, 0, 0.1),
+                0 0 30px rgba(0, 255, 0, 0.1);
         }
 
-        /* Циферблат до 180° */
-        .degree-marks {
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border-radius: 50%;
-        }
-
-        .degree-mark {
-            position: absolute;
-            color: #66ff66;
-            font-size: 11px;
-            font-weight: bold;
-            transform-origin: center;
-            width: 20px;
-            height: 20px;
-            text-align: center;
-            line-height: 20px;
-        }
-
-        .degree-mark.target {
-            color: #ff5555 !important;
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        /* Текущий угол */
         #degree {
             position: absolute;
             top: 50%;
@@ -152,173 +120,228 @@
             color: #00ff00;
             font-weight: bold;
             font-size: 20px;
-            background: rgba(0, 20, 0, 0.7);
-            padding: 8px 15px;
-            border-radius: 20px;
-            border: 1px solid #00aa00;
-            z-index: 5;
-            min-width: 60px;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+            z-index: 2;
         }
 
-        /* Стрелка */
         .circle {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, #008800, #004400);
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, #00cc44, #008822);
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 32px;
             position: absolute;
             top: 50%;
             left: 50%;
-            margin-top: -30px;
-            margin-left: -30px;
-            box-shadow: 0 0 15px rgba(0, 255, 0, 0.4);
+            margin-top: -35px;
+            margin-left: -35px;
+            box-shadow: 
+                0 0 25px rgba(0, 255, 0, 0.5),
+                inset 0 2px 0 rgba(255, 255, 255, 0.2);
             cursor: grab;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
             color: white;
-            z-index: 10;
-            border: 2px solid #00aa00;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            z-index: 3;
         }
 
         .circle:active { 
             cursor: grabbing; 
-            box-shadow: 0 0 25px #00ff00;
-            background: linear-gradient(135deg, #00aa00, #006600);
-        }
-
-        /* Подсказка */
-        .target-hint {
-            margin: 15px 0;
-            padding: 10px;
-            background: rgba(255, 0, 0, 0.1);
-            border-radius: 10px;
-            border: 1px solid #ff4444;
-            color: #ff8888;
-            font-size: 13px;
-            font-weight: bold;
+            box-shadow: 
+                0 0 35px rgba(0, 255, 0, 0.8),
+                inset 0 2px 0 rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
         }
 
         /* Кнопки */
         .btn {
             width: 100%;
-            padding: 15px;
+            padding: 16px 20px;
             border: none;
-            border-radius: 12px;
-            background: #008800;
+            border-radius: 15px;
+            background: linear-gradient(135deg, #00aa44, #008822);
             color: white;
-            font-weight: bold;
+            font-weight: 600;
             font-size: 16px;
             cursor: pointer;
-            margin-top: 15px;
-            transition: all 0.3s;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 15px rgba(0, 255, 0, 0.2);
         }
 
         .btn:hover {
-            background: #00aa00;
             transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 255, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn:hover::after {
+            left: 100%;
         }
 
         .btn.upload { 
-            background: #0066cc; 
+            background: linear-gradient(135deg, #0066cc, #004499);
+            box-shadow: 0 4px 15px rgba(0, 102, 255, 0.2);
         }
 
-        .btn.upload:hover { 
-            background: #0088ff; 
+        .btn.upload:hover {
+            box-shadow: 0 6px 20px rgba(0, 102, 255, 0.3);
         }
 
-        /* Статус */
+        /* Статус сообщения */
         .status {
-            margin-top: 15px;
-            padding: 10px;
-            border-radius: 10px;
-            font-size: 13px;
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 12px;
+            font-size: 14px;
             display: none;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .status.active { display: block; }
+        .status.active { 
+            display: block; 
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
         .success { 
-            background: rgba(0, 255, 0, 0.2); 
-            color: #00ff00; 
-            border: 1px solid #00aa00;
-        }
-        .error { 
-            background: rgba(255, 0, 0, 0.2); 
-            color: #ff5555; 
-            border: 1px solid #ff4444;
+            background: rgba(0, 255, 0, 0.15); 
+            color: #88ff88;
+            border-color: rgba(0, 255, 0, 0.3);
         }
 
-        /* Инфо об устройстве */
+        .error { 
+            background: rgba(255, 0, 0, 0.15); 
+            color: #ff8888;
+            border-color: rgba(255, 0, 0, 0.3);
+        }
+
+        /* Индикатор загрузки */
+        .loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #00ff00;
+            animation: spin 1s ease-in-out infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Детали устройства */
         .device-info {
             margin-top: 15px;
             font-size: 12px;
             color: #88ff88;
+            opacity: 0.7;
             padding: 10px;
             background: rgba(0, 40, 0, 0.3);
             border-radius: 8px;
             border: 1px solid rgba(0, 255, 0, 0.1);
         }
 
-        /* Мобильная адаптация */
+        /* Мобильная оптимизация */
         @media (max-width: 480px) {
-            .rotate-container {
-                width: 200px;
-                height: 200px;
-            }
-            
-            .circle {
-                width: 50px;
-                height: 50px;
-                font-size: 24px;
-                margin-top: -25px;
-                margin-left: -25px;
-            }
-            
-            .degree-mark {
-                font-size: 10px;
-            }
-            
             .card {
                 padding: 25px 20px;
                 max-width: 90%;
             }
             
-            .floating-img {
-                width: 60px !important;
-                height: 60px !important;
+            .rotate-box {
+                width: 180px;
+                height: 180px;
+            }
+            
+            .circle {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+                margin-top: -30px;
+                margin-left: -30px;
+            }
+            
+            h2 {
+                font-size: 22px;
+            }
+            
+            .btn {
+                padding: 14px 18px;
             }
         }
 
-        @media (min-width: 768px) {
-            .floating-img {
-                width: 90px !important;
-                height: 90px !important;
+        /* Анимация появления */
+        .fade-in {
+            animation: fadeInUp 0.5s ease;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
             }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Иконка файла */
+        .file-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+            display: block;
+            color: #00ff88;
+            text-shadow: 0 0 10px rgba(0, 255, 0, 0.3);
         }
     </style>
 </head>
 <body>
-    <!-- Плавающие фоновые картинки -->
-    <div class="floating-images" id="floating-images"></div>
+    <!-- Фоновые слои -->
+    <div class="background-layer"></div>
+    <div class="bg-pattern"></div>
 
     <!-- Экран Капчи -->
-    <div class="screen" id="captcha-screen">
+    <div class="screen fade-in" id="captcha-screen">
         <div class="card">
             <h2>🔒 Проверка безопасности</h2>
-            <p>Поверните стрелку в указанный диапазон</p>
+            <p>Поверните стрелку вправо в диапазон 80°-99° для продолжения</p>
             
             <div class="rotate-container">
                 <div class="rotate-box">
-                    <div class="degree-marks" id="degree-marks"></div>
                     <div id="degree">0°</div>
                     <div id="circle" class="circle">↑</div>
                 </div>
-            </div>
-            
-            <div class="target-hint" id="target-hint">
-                Загрузка задания...
             </div>
             
             <button class="btn" id="verify-btn">✅ Подтвердить</button>
@@ -328,6 +351,7 @@
     <!-- Главный экран -->
     <div class="screen hidden" id="main-screen">
         <div class="card">
+            <span class="file-icon">📄</span>
             <h2 id="welcome-user">Добро пожаловать</h2>
             <p>Загрузите ваш текстовый файл (.txt)</p>
             
