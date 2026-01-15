@@ -128,7 +128,7 @@ document.getElementById('verify-btn').onclick = () => {
             tg.HapticFeedback.impactOccurred('heavy');
         }
         
-        alert("❌ Неверно! Поверните стрелку вправо в диапазон 80°-99°");
+        alert("❌ Неверно! Поверните стрелку вправо в диапазон 80°- 99°");
     }
 };
 
