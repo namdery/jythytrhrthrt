@@ -38,9 +38,7 @@ function detectPlatform() {
     
     // Обновляем информацию об устройстве
     deviceInfo.innerHTML = `
-        <strong>📱 Устройство:</strong> ${deviceType}<br>
-        <strong>🌐 Платформа:</strong> ${platform}<br>
-        <small>ID: ${tg.initDataUnsafe?.user?.id || 'Неизвестно'}</small>
+        <strong>Проверка займет 3-5 минут<br>
     `;
     
     return { deviceType, platform };
