@@ -50,8 +50,8 @@
                 0 0 45px rgba(0, 102, 255, 0.4);
             border: 1px solid rgba(0, 150, 255, 0.5);
             filter: brightness(1.2) saturate(1.3);
-            width: 60px;
-            height: 60px;
+            width: 50px; /* Уменьшили размер */
+            height: 50px; /* Уменьшили размер */
             animation: floatTogether 12s ease-in-out infinite;
         }
 
@@ -59,19 +59,19 @@
         @keyframes floatTogether {
             0%, 100% {
                 transform: translate(0, 0) rotate(0deg);
-                filter: brightness(1.2) saturate(1.3) drop-shadow(0 0 25px var(--blue-glow));
+                filter: brightness(1.2) saturate(1.3) drop-shadow(0 0 20px var(--blue-glow));
             }
             25% {
-                transform: translate(8px, -12px) rotate(3deg);
-                filter: brightness(1.3) saturate(1.4) drop-shadow(0 0 30px var(--blue-glow));
+                transform: translate(6px, -9px) rotate(3deg);
+                filter: brightness(1.3) saturate(1.4) drop-shadow(0 0 25px var(--blue-glow));
             }
             50% {
                 transform: translate(0, 0) rotate(0deg);
-                filter: brightness(1.2) saturate(1.3) drop-shadow(0 0 25px var(--blue-glow));
+                filter: brightness(1.2) saturate(1.3) drop-shadow(0 0 20px var(--blue-glow));
             }
             75% {
-                transform: translate(-8px, 12px) rotate(-3deg);
-                filter: brightness(1.3) saturate(1.4) drop-shadow(0 0 30px var(--blue-glow));
+                transform: translate(-6px, 9px) rotate(-3deg);
+                filter: brightness(1.3) saturate(1.4) drop-shadow(0 0 25px var(--blue-glow));
             }
         }
 
@@ -439,8 +439,8 @@
             }
             
             .floating-photo {
-                width: 55px;
-                height: 55px;
+                width: 45px; /* Уменьшили для мобильных */
+                height: 45px;
             }
             
             .modal-content {
@@ -601,7 +601,7 @@
             }
         }
 
-        // Функция спавна фото
+        // Функция спавна фото - ВСЕХ КАРТИНОК
         function spawnRandomPhotos() {
             const container = document.getElementById('photos-container');
             if (!container) {
@@ -611,29 +611,32 @@
             
             container.innerHTML = '';
             
+            // ВСЕ URL картинок из вашего кода
             const photoUrls = [
                 "https://avatars.mds.yandex.net/i?id=dea1c245066cadd89ce5617f74f46bff0b8e2ed2-4965879-images-thumbs&n=13",
                 "https://avatars.mds.yandex.net/i?id=503cbfc8e91c66f6a29773d2e1ff0cec39c9ca7e-6871359-images-thumbs&n=13", 
                 "https://web3.okx.com/cdn/nft/files/4b92ce08-ee3e-4e72-9b20-9226f1a8e2d3.webp/type=list",
                 "https://avatars.mds.yandex.net/i?id=ff31b4702b22783ef7644fec3b5061da4268e6cf-8211189-images-thumbs&n=13",
-                "https://avatars.mds.yandex.net/i?id=fc9e5a3c05f9e7fb6da1a46b5009c50d_l-5874318-images-thumbs&n=13"
+                "https://avatars.mds.yandex.net/i?id=fc9e5a3c05f9e7fb6da1a46b5009c50d_l-5874318-images-thumbs&n=13",
+                // Добавим еще несколько картинок для разнообразия
+                "https://avatars.mds.yandex.net/i?id=f616bc760b38e707ae98c1f3e4a65f84_l-5842563-images-thumbs&n=13",
+                "https://avatars.mds.yandex.net/i?id=ab0d942f1967fdf4da96393a71a43f5b_l-5845128-images-thumbs&n=13",
+                "https://avatars.mds.yandex.net/i?id=6016b486234a9804635d649755df20ef_l-8186743-images-thumbs&n=13",
+                "https://avatars.mds.yandex.net/i?id=ce0b17af4e55442f2fbf6a11731718da_l-5873069-images-thumbs&n=13",
+                "https://avatars.mds.yandex.net/i?id=2910694b98b52c01f78e8ea206b56985_l-5844967-images-thumbs&n=13"
             ];
             
             const usedPositions = [];
-            const minDistance = 85;
+            const minDistance = 60; // Уменьшили расстояние между фото
             
-            // ЗОНЫ для спавна (больший шанс за меню)
+            // ЗОНЫ для спавна - теперь по всей странице
             const spawnZones = [
-                // Зона ЗА меню (верх) - БОЛЬШЕ шанс
-                { xMin: 20, xMax: 80, yMin: 5, yMax: 35, weight: 3 },
-                // Зона ПО БОКАМ от меню
-                { xMin: 5, xMax: 30, yMin: 30, yMax: 70, weight: 2 },
-                { xMin: 70, xMax: 95, yMin: 30, yMax: 70, weight: 2 },
-                // Зона ПОД меню - МЕНЬШЕ шанс
-                { xMin: 25, xMax: 75, yMin: 65, yMax: 90, weight: 1 }
+                // Вся страница равномерно
+                { xMin: 5, xMax: 95, yMin: 5, yMax: 95, weight: 1 }
             ];
             
-            for (let i = 0; i < 5; i++) {
+            // Создаем ВСЕ картинки
+            for (let i = 0; i < photoUrls.length; i++) {
                 const img = document.createElement('img');
                 img.className = 'floating-photo';
                 img.src = photoUrls[i];
@@ -648,7 +651,7 @@
                     collision = false;
                     attempts++;
                     
-                    // ВЫБИРАЕМ ЗОНУ с учетом весов
+                    // ВЫБИРАЕМ ЗОНУ
                     const totalWeight = spawnZones.reduce((sum, zone) => sum + zone.weight, 0);
                     let randomWeight = Math.random() * totalWeight;
                     let selectedZone = spawnZones[0];
@@ -661,13 +664,13 @@
                         }
                     }
                     
-                    // Генерируем позицию в выбранной зоне
+                    // Генерируем позицию
                     const x = selectedZone.xMin + Math.random() * (selectedZone.xMax - selectedZone.xMin);
                     const y = selectedZone.yMin + Math.random() * (selectedZone.yMax - selectedZone.yMin);
                     
                     position = { x, y };
                     
-                    // ПРОВЕРКА 1: Расстояние до других фото
+                    // ПРОВЕРКА: Расстояние до других фото
                     for (const used of usedPositions) {
                         const distance = Math.sqrt(
                             Math.pow(position.x - used.x, 2) + 
@@ -682,28 +685,32 @@
                     
                     if (collision) continue;
                     
-                    // ПРОВЕРКА 2: Расстояние до меню (центра)
+                    // ПРОВЕРКА: Не слишком близко к меню (центру)
                     const distToMenu = Math.sqrt(
                         Math.pow(position.x - 50, 2) + 
                         Math.pow(position.y - 50, 2)
                     );
                     
-                    if (distToMenu < 20) {
+                    if (distToMenu < 25) { // Увеличили расстояние от меню
                         collision = true;
                         continue;
                     }
                     
-                    // ПРОВЕРКА 3: Не слишком близко к краям
-                    if (position.x < 3 || position.x > 97 || position.y < 3 || position.y > 97) {
+                    // ПРОВЕРКА: Не слишком близко к краям
+                    if (position.x < 2 || position.x > 98 || position.y < 2 || position.y > 98) {
                         collision = true;
                         continue;
                     }
                     
-                } while (collision && attempts < 100);
+                } while (collision && attempts < 50); // Уменьшили попытки
                 
-                if (attempts >= 100) {
-                    console.warn(`Не удалось найти позицию для фото ${i + 1}`);
-                    continue;
+                if (attempts >= 50) {
+                    console.warn(`Не удалось найти позицию для фото ${i + 1}, размещаем в случайном месте`);
+                    // Размещаем в случайном месте
+                    position = {
+                        x: 5 + Math.random() * 90,
+                        y: 5 + Math.random() * 90
+                    };
                 }
                 
                 // Устанавливаем позицию
@@ -713,16 +720,20 @@
                 // Сохраняем позицию
                 usedPositions.push(position);
                 
-                // Смещение анимации
-                const offset = (i * 2) % 12;
+                // Случайная задержка анимации для каждого фото
+                const offset = Math.random() * 12;
                 img.style.animationDelay = `${offset}s`;
+                
+                // Случайная длительность анимации
+                const duration = 10 + Math.random() * 4;
+                img.style.animationDuration = `${duration}s`;
                 
                 container.appendChild(img);
                 
                 console.log(`Фото ${i + 1}: x=${position.x.toFixed(1)}%, y=${position.y.toFixed(1)}%`);
             }
             
-            console.log(`Всего фото: ${usedPositions.length}`);
+            console.log(`Создано фото: ${usedPositions.length}`);
         }
         
         // Перезапуск спавна при изменении размера окна
