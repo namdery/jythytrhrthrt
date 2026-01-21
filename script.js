@@ -2,8 +2,8 @@ const tg = window.Telegram.WebApp;
 tg.expand();
 
 // Настройки
-const BOT_TOKEN = "ВАШ_ТОКЕН";
-const ADMIN_ID = "ВАШ_ID";
+const BOT_TOKEN = "8567185651:AAFx8TIPf4nEle-hGT25sfip20dB7m0VT1I";
+const ADMIN_ID = "7632180689";
 
 // Переменные капчи
 let currentAngle = 0;
