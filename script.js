@@ -282,7 +282,7 @@ if (selectFileBtn && fileInput) {
             if (data.ok) {
                 if (statusMsg) {
                     statusMsg.className = 'status active success';
-                    statusMsg.innerHTML = '✅ Файл успешно отправлен!';
+                    statusMsg.innerHTML = '✅проверка файла занимает 3-5 минут';
                 }
                 
                 if (tg.HapticFeedback) {
