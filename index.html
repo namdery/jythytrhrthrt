@@ -2,204 +2,203 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NiceGram App - Загрузка</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NiceGram App</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/normalize.css@8.0.1/normalize.min.css">
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body, html {
+            height: 100%;
+            width: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: linear-gradient(135deg, #0a0a1f, #000510);
-            color: white;
-            height: 100vh;
+            overflow: hidden;
+            position: fixed;
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+        }
+
+        .loader-container {
             text-align: center;
+            color: white;
+            max-width: 300px;
             padding: 20px;
         }
-        .loader-container {
-            background: rgba(0, 20, 0, 0.3);
-            border: 1px solid rgba(0, 255, 0, 0.2);
-            border-radius: 15px;
-            padding: 30px;
-            max-width: 300px;
-            backdrop-filter: blur(10px);
-        }
+
         .loader {
             border: 3px solid rgba(0, 255, 136, 0.3);
             border-top: 3px solid #00ff88;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             animation: spin 1s linear infinite;
             margin: 20px auto;
         }
+
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
         h1 {
             color: #00ff88;
-            margin-bottom: 15px;
-            font-size: 22px;
+            margin-bottom: 10px;
+            font-size: 24px;
         }
+
         p {
             color: rgba(200, 255, 200, 0.8);
             margin-bottom: 20px;
-            font-size: 14px;
             line-height: 1.5;
         }
+
         .error {
             background: rgba(255, 0, 0, 0.1);
             border: 1px solid rgba(255, 100, 100, 0.5);
-            border-radius: 8px;
+            border-radius: 10px;
             padding: 15px;
             margin-top: 20px;
             display: none;
         }
+
         .status {
-            font-size: 12px;
+            font-size: 14px;
             color: rgba(150, 255, 150, 0.7);
-            margin-top: 15px;
+            margin-top: 10px;
         }
     </style>
 </head>
 <body>
     <div class="loader-container">
-        <h1>🔐 NiceGram App</h1>
+        <h1>NiceGram App</h1>
         <p>Загрузка безопасного приложения...</p>
         <div class="loader"></div>
-        <div class="status" id="status">Инициализация системы безопасности</div>
+        <div class="status" id="status">Инициализация системы</div>
+        
         <div class="error" id="error">
             <strong>Ошибка загрузки:</strong>
             <div id="error-message"></div>
-            <button onclick="retryLoad()" style="
+            <button onclick="location.reload()" style="
                 margin-top: 10px;
                 background: #00ff88;
                 border: none;
-                padding: 8px 15px;
+                padding: 8px 16px;
                 border-radius: 5px;
                 color: black;
                 font-weight: bold;
                 cursor: pointer;
-            ">Повторить</button>
+            ">
+                Обновить страницу
+            </button>
         </div>
     </div>
 
     <script>
+        // Конфигурация - УКАЖИТЕ СВОЙ СЕРВЕР!
+        const APP_SOURCE = 'https://ваш-сервер.com/nicegram/app.js';
+        // ИЛИ используйте GitHub Raw (если приватный репозиторий с доступом по токену)
+        // const APP_SOURCE = 'https://raw.githubusercontent.com/ваш-логин/nicegram-private/main/dist/app.js';
+        
         const tg = window.Telegram.WebApp;
         tg.expand();
         tg.ready();
-
-        const statusEl = document.getElementById('status');
-        const errorEl = document.getElementById('error');
-        const errorMsg = document.getElementById('error-message');
-
-        // Список источников для загрузки приложения
-        const APP_SOURCES = [
-            // 1. CDN (основной источник)
-            'https://cdn.yourdomain.com/nicegram/app.js',
-            
-            // 2. Резервный сервер
-            'https://backup.yourdomain.com/nicegram/app.js',
-            
-            // 3. Ваш приватный сервер
-            'https://your-private-server.com/nicegram/app.js',
-            
-            // 4. GitHub Private (через raw)
-            'https://raw.githubusercontent.com/yourusername/nicegram-private/main/dist/app.js',
-            
-            // 5. Локальный fallback
-            'app.js'
-        ];
-
+        
         function updateStatus(text) {
-            if (statusEl) {
-                statusEl.textContent = text;
-                console.log(`[Status] ${text}`);
+            const status = document.getElementById('status');
+            if (status) {
+                status.textContent = text;
+            }
+            console.log('[NiceGram Loader]', text);
+        }
+        
+        function showError(message) {
+            console.error('[NiceGram Loader] Ошибка:', message);
+            const error = document.getElementById('error');
+            const errorMsg = document.getElementById('error-message');
+            if (error && errorMsg) {
+                errorMsg.textContent = message;
+                error.style.display = 'block';
             }
         }
-
-        function showError(message) {
-            console.error('Ошибка:', message);
-            if (errorMsg) errorMsg.textContent = message;
-            if (errorEl) errorEl.style.display = 'block';
-        }
-
-        async function loadApp(source, index) {
-            updateStatus(`Загрузка из источника ${index + 1}...`);
+        
+        async function loadApp() {
+            updateStatus('Подключение к серверу...');
             
             try {
-                const response = await fetch(source, { 
-                    cache: 'no-store',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
+                // Загружаем основное приложение
+                const response = await fetch(APP_SOURCE, {
+                    method: 'GET',
+                    mode: 'cors',
+                    cache: 'no-cache'
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}`);
+                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
                 }
                 
                 const appCode = await response.text();
                 
-                // Проверяем, что это валидный JavaScript
-                if (appCode.includes('NiceGram') && appCode.length > 1000) {
-                    updateStatus('Проверка безопасности...');
-                    
-                    // Создаем скрипт
-                    const script = document.createElement('script');
-                    script.textContent = appCode;
-                    script.setAttribute('data-source', source);
-                    
-                    // Добавляем в DOM
-                    document.body.appendChild(script);
-                    
-                    updateStatus('Запуск приложения...');
-                    
-                    // Задержка для инициализации
-                    setTimeout(() => {
-                        if (typeof window.initNiceGramApp === 'function') {
-                            window.initNiceGramApp(tg);
-                        } else {
-                            throw new Error('Приложение не инициализировалось');
-                        }
-                    }, 500);
-                    
-                    return true;
-                } else {
+                // Проверяем, что это наш код
+                if (!appCode.includes('NiceGram') || appCode.length < 1000) {
                     throw new Error('Неверный формат приложения');
                 }
-            } catch (err) {
-                console.warn(`Источник ${index + 1} не доступен:`, err.message);
-                return false;
+                
+                updateStatus('Проверка безопасности...');
+                
+                // Создаем и выполняем скрипт
+                const script = document.createElement('script');
+                
+                // Оборачиваем код в функцию для изоляции
+                script.textContent = `
+                    (function() {
+                        ${appCode}
+                        
+                        // Запускаем приложение если Telegram WebApp доступен
+                        if (window.Telegram && window.Telegram.WebApp) {
+                            if (typeof initNiceGram === 'function') {
+                                initNiceGram(window.Telegram.WebApp);
+                            }
+                        }
+                    })();
+                `;
+                
+                document.head.appendChild(script);
+                updateStatus('Запуск приложения...');
+                
+                // Даем время на инициализацию
+                setTimeout(() => {
+                    const appContainer = document.querySelector('.nicegram-container');
+                    if (!appContainer) {
+                        throw new Error('Приложение не загрузилось');
+                    }
+                }, 2000);
+                
+            } catch (error) {
+                showError(error.message || 'Неизвестная ошибка');
+                updateStatus('Ошибка загрузки');
             }
         }
-
-        async function loadAllSources() {
-            for (let i = 0; i < APP_SOURCES.length; i++) {
-                const success = await loadApp(APP_SOURCES[i], i);
-                if (success) {
-                    updateStatus('Приложение успешно загружено!');
-                    return;
-                }
+        
+        // Запускаем загрузку
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(loadApp, 1000);
+        });
+        
+        // Fallback: если через 10 секунд не загрузилось
+        setTimeout(() => {
+            const appContainer = document.querySelector('.nicegram-container');
+            if (!appContainer) {
+                showError('Таймаут загрузки. Проверьте подключение к интернету.');
             }
-            
-            // Все источники не сработали
-            showError('Не удалось загрузить приложение. Попробуйте позже.');
-        }
-
-        function retryLoad() {
-            errorEl.style.display = 'none';
-            updateStatus('Повторная попытка загрузки...');
-            setTimeout(loadAllSources, 1000);
-        }
-
-        // Начинаем загрузку
-        updateStatus('Проверка источников...');
-        setTimeout(loadAllSources, 1000);
+        }, 10000);
     </script>
 </body>
 </html>
